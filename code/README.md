@@ -1,4 +1,4 @@
-# app
+# outfit_finder
 
 A new Flutter project.
 

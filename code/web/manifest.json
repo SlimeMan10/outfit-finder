@@ -1,6 +1,6 @@
 {
-    "name": "app",
-    "short_name": "app",
+    "name": "outfit_finder",
+    "short_name": "outfit_finder",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
