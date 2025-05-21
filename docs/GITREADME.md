@@ -1,106 +1,183 @@
 # Git Workflow Guide
 
-## Branch Management
-### Creating a new Branch
-- `git checkout -b/B <name>`
-    - `-b` creates a new branch if one already exists it will give you an error (safest)
-    - `-B` creates a new branch and if one already exists it will override it
-
-### Switching Branches
-- `git checkout <branch-name>` - Switch to an existing branch
-- `git branch` - List all local branches
-- `git branch -a` - List all branches (local and remote)
-
-## Syncing with Main
-### Pulling from main
-If you are pulling from main do these steps to keep your changes (if we are not doing any branches):
-- `git stash` (stashes your current changes to avoid overriding)
-- `git pull`
-- `git stash pop` (puts all changes back into place)
-
-### Alternative Pull Method
-- `git pull --rebase` - Pulls changes and rebases your local commits on top
-
-## Making Changes
-### Committing Changes
-- `git add .` - Stage all changes
-- `git add <file>` - Stage specific file
-- `git commit -m "your message"` - Commit staged changes
-- `git commit -am "your message"` - Stage and commit all tracked files
-
-### Pushing Changes
-- `git push origin <branch-name>` - Push your branch to remote
-- `git push -u origin <branch-name>` - Push and set upstream branch
-
-## Resolving Conflicts
-1. Pull latest changes: `git pull`
-2. If conflicts occur:
-   - Resolve conflicts in your code editor
-   - `git add` the resolved files
-   - `git commit` to complete the merge
-
-## Useful Commands
-- `git status` - Check current status
-- `git log` - View commit history
-- `git diff` - See changes in working directory
-- `git diff --staged` - See staged changes
-
-## Best Practices
+## IMPORTANT: Always Follow This Order
 1. Always pull before starting new work
-2. Create feature branches for new features
-3. Write clear commit messages
-4. Keep commits focused and atomic
-5. Review changes before committing
-6. Don't commit sensitive information
+2. Create a new branch for your work (no matter how small)
+3. Make your changes
+4. Commit your changes
+5. Push your branch
+6. Create merge request
+7. Get approval
+8. Merge
+9. Clean up
+
+## WARNING: Common Mistakes to Avoid
+- NEVER make new commits before pulling from main
+- NEVER use -B when creating branches (it may override existing branches)
+- NEVER commit directly to main
+- ALWAYS pull before starting new work
+- ALWAYS create a new branch for changes
+- NEVER make commits in main while a merge request is pending
+
+## Daily Workflow
+
+### 1. Start Your Day
+```bash
+# Always start with latest main
+git checkout main
+git pull origin main
+```
+
+### 2. Create Your Branch
+```bash
+# Create and switch to new branch
+git checkout -b feature-type/your-feature-name
+```
+- NEVER USE -B as it may override a branch that has the same name
+
+### 3. Make Changes
+- Make your code changes
+- Test your changes
+- Don't forget to save files
+
+### 4. Commit Your Changes
+```bash
+# Check what you changed
+git status
+
+# Add your changes
+git add .
+
+# Commit with clear message
+git commit -m "Description of your changes"
+```
+
+### 5. Push Your Branch
+```bash
+# Push your branch to GitLab
+git push -u origin feature/your-feature-name
+```
+
+## Merge Process
+
+### 1. Create Merge Request (MR)
+1. Go to GitLab repository
+2. Click "Create merge request" button
+3. Fill in:
+   - Title: Clear, brief description
+   - Description: Detailed explanation
+   - Assign reviewers
+   - Add labels
+
+### 2. Review Process
+- Wait for reviewer comments
+- Make requested changes
+- Push new commits
+- Comment on MR when ready for re-review
+
+### 3. Merging
+1. Once approved, click "Merge"
+2. Choose "Create a merge commit"
+3. Check "Delete source branch"
+4. Click "Merge"
+
+### 4. Clean Up
+```bash
+# Switch to main
+git checkout main
+
+# Get latest changes
+git pull
+
+# Delete local branch
+git branch -d feature/your-feature-name
+
+# Delete remote branch
+git push origin --delete feature/your-feature-name
+```
+
+## Handling Merge Conflicts
+
+### Preventing Merge Conflicts
+1. NEVER make commits in main while a merge request is pending
+2. Always pull from main before starting new work
+3. Keep your branch up to date with main:
+```bash
+# While on your feature branch
+git checkout main
+git pull
+git checkout your-branch
+git merge main
+```
+
+### Resolving Merge Conflicts
+If a merge conflict occurs:
+1. Pull latest changes from main
+2. Resolve conflicts in your editor
+3. Add resolved files
+4. Commit the merge
+5. Push your changes
 
 ## Emergency Commands
-- `git reset --hard HEAD` - Discard all local changes
-- `git clean -fd` - Remove untracked files and directories
-- `git revert <commit>` - Undo a specific commit
+```bash
+# Discard all local changes
+git reset --hard HEAD
 
-## Team Communication
-- Use meaningful branch names (e.g., `feature/login`, `bugfix/navbar`)
-- Keep commit messages clear and descriptive
-- Communicate when pushing major changes
-- Review code before merging to main
+# Remove untracked files
+git clean -fd
 
-## GitLab Merge Process
-### Creating a Merge Request (MR)
-1. Push your branch to GitLab: `git push origin <branch-name>`
-2. Go to GitLab repository in your browser
-3. Click "Create merge request" button that appears after pushing
-4. Fill in the merge request details:
-   - Title: Brief description of changes
-   - Description: Detailed explanation of changes
-   - Assign reviewers
-   - Add labels if needed
+# Undo last commit (keep changes)
+git reset --soft HEAD~1
 
-### Review Process
-1. Team members will review your code
-2. Address any review comments:
-   - Make requested changes
-   - Push new commits to your branch
-   - Comment on the MR to notify reviewers
+# Undo last commit (discard changes)
+git reset --hard HEAD~1
+```
 
-### Merging
-1. Once approved, click "Merge" button
-2. Choose merge strategy:
-   - "Create a merge commit" (recommended)
-   - "Squash and merge"
-   - "Fast-forward merge"
-3. Delete source branch after merge (recommended)
+## Best Practices
 
-### After Merging
-1. Switch to main branch: `git checkout main`
-2. Pull latest changes: `git pull`
-3. Delete local branch: `git branch -d <branch-name>`
-4. Delete remote branch: `git push origin --delete <branch-name>`
+### Branch Naming
+- `feature/` - New features
+- `bugfix/` - Bug fixes
+- `hotfix/` - Urgent fixes
+- `docs/` - Documentation
 
-### Merge Request Best Practices
-1. Keep MRs small and focused
-2. Update MR description if changes are made
-3. Respond to review comments promptly
-4. Test changes before requesting review
-5. Include screenshots for UI changes
-6. Reference related issues/tickets
+### Commit Messages
+- Start with verb (Add, Fix, Update, etc.)
+- Keep it clear and concise
+- Reference issue numbers if applicable
 
+### Merge Requests
+- Keep changes focused and small
+- Include screenshots for UI changes
+- Test before requesting review
+- Respond to comments promptly
+
+## Quick Reference
+
+### Common Commands
+```bash
+# Check status
+git status
+
+# See changes
+git diff
+
+# See commit history
+git log
+
+# Stash changes
+git stash
+
+# Apply stashed changes
+git stash pop
+```
+
+## Remember
+- Always work in branches
+- Never commit to main directly
+- Keep commits small and focused
+- Communicate with team
+- Test before merging
+- Never make new commits before pulling
+- Always pull before starting new work
+- Never make commits in main while a merge request is pending 
