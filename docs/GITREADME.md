@@ -31,9 +31,11 @@ git pull origin main
 ### 2. Create Your Branch
 ```bash
 # Create and switch to new branch
-git checkout -b feature-type/your-feature-name
+git checkout -b your-name/feature-type/your-feature-name
+# Using your name in the branch name helps prevent accidental branch overrides
+# This is especially important when multiple team members work on similar features
 ```
-- NEVER USE -B as it may override a branch that has the same name
+- NEVER USE -B as it may override a branch that has the same name. In case you do the name in the branch name is a failsafe so most likely you will override your own work.
 
 ### 3. Make Changes
 - Make your code changes
