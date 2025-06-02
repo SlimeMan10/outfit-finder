@@ -31,6 +31,11 @@ const OutfitSchema = CollectionSchema(
       id: 2,
       name: r'isForSunny',
       type: IsarType.bool,
+    ),
+    r'name': PropertySchema(
+      id: 3,
+      name: r'name',
+      type: IsarType.string,
     )
   },
   estimateSize: _outfitEstimateSize,
@@ -60,6 +65,7 @@ int _outfitEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.name.length * 3;
   return bytesCount;
 }
 
@@ -72,6 +78,7 @@ void _outfitSerialize(
   writer.writeBool(offsets[0], object.isForGloomy);
   writer.writeBool(offsets[1], object.isForRainy);
   writer.writeBool(offsets[2], object.isForSunny);
+  writer.writeString(offsets[3], object.name);
 }
 
 Outfit _outfitDeserialize(
@@ -85,6 +92,7 @@ Outfit _outfitDeserialize(
     isForGloomy: reader.readBoolOrNull(offsets[0]) ?? false,
     isForRainy: reader.readBoolOrNull(offsets[1]) ?? false,
     isForSunny: reader.readBoolOrNull(offsets[2]) ?? false,
+    name: reader.readStringOrNull(offsets[3]) ?? '',
   );
   return object;
 }
@@ -102,6 +110,8 @@ P _outfitDeserializeProp<P>(
       return (reader.readBoolOrNull(offset) ?? false) as P;
     case 2:
       return (reader.readBoolOrNull(offset) ?? false) as P;
+    case 3:
+      return (reader.readStringOrNull(offset) ?? '') as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -294,6 +304,135 @@ extension OutfitQueryFilter on QueryBuilder<Outfit, Outfit, QFilterCondition> {
       ));
     });
   }
+
+  QueryBuilder<Outfit, Outfit, QAfterFilterCondition> nameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Outfit, Outfit, QAfterFilterCondition> nameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Outfit, Outfit, QAfterFilterCondition> nameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Outfit, Outfit, QAfterFilterCondition> nameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'name',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Outfit, Outfit, QAfterFilterCondition> nameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Outfit, Outfit, QAfterFilterCondition> nameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Outfit, Outfit, QAfterFilterCondition> nameContains(String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Outfit, Outfit, QAfterFilterCondition> nameMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'name',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Outfit, Outfit, QAfterFilterCondition> nameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'name',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Outfit, Outfit, QAfterFilterCondition> nameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'name',
+        value: '',
+      ));
+    });
+  }
 }
 
 extension OutfitQueryObject on QueryBuilder<Outfit, Outfit, QFilterCondition> {}
@@ -396,6 +535,18 @@ extension OutfitQuerySortBy on QueryBuilder<Outfit, Outfit, QSortBy> {
       return query.addSortBy(r'isForSunny', Sort.desc);
     });
   }
+
+  QueryBuilder<Outfit, Outfit, QAfterSortBy> sortByName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'name', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Outfit, Outfit, QAfterSortBy> sortByNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'name', Sort.desc);
+    });
+  }
 }
 
 extension OutfitQuerySortThenBy on QueryBuilder<Outfit, Outfit, QSortThenBy> {
@@ -446,6 +597,18 @@ extension OutfitQuerySortThenBy on QueryBuilder<Outfit, Outfit, QSortThenBy> {
       return query.addSortBy(r'isForSunny', Sort.desc);
     });
   }
+
+  QueryBuilder<Outfit, Outfit, QAfterSortBy> thenByName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'name', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Outfit, Outfit, QAfterSortBy> thenByNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'name', Sort.desc);
+    });
+  }
 }
 
 extension OutfitQueryWhereDistinct on QueryBuilder<Outfit, Outfit, QDistinct> {
@@ -464,6 +627,13 @@ extension OutfitQueryWhereDistinct on QueryBuilder<Outfit, Outfit, QDistinct> {
   QueryBuilder<Outfit, Outfit, QDistinct> distinctByIsForSunny() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isForSunny');
+    });
+  }
+
+  QueryBuilder<Outfit, Outfit, QDistinct> distinctByName(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'name', caseSensitive: caseSensitive);
     });
   }
 }
@@ -490,6 +660,12 @@ extension OutfitQueryProperty on QueryBuilder<Outfit, Outfit, QQueryProperty> {
   QueryBuilder<Outfit, bool, QQueryOperations> isForSunnyProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isForSunny');
+    });
+  }
+
+  QueryBuilder<Outfit, String, QQueryOperations> nameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'name');
     });
   }
 }
