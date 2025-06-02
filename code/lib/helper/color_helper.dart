@@ -18,7 +18,7 @@ class ColorHelper {
   final Color purple = Colors.deepPurpleAccent;
   final Color pink = const Color(0xFFFF00D4);
 
-  late final Map<String, Color> _colorMap = {
+  late final Map<String, Color> colorMap = {
     'black': black,
     'darkgrey': darkGrey,
     'lightgrey': lightGrey,
@@ -38,11 +38,11 @@ class ColorHelper {
   };
 
   Color getColorFromString(String colorString) {
-    return _colorMap[colorString.toLowerCase()] ?? white;
+    return colorMap[colorString.toLowerCase()] ?? white;
   }
 
   String getStringFromColor(Color color) {
-    return _colorMap.entries
+    return colorMap.entries
         .firstWhere((entry) => entry.value == color,
             orElse: () => MapEntry('white', white))
         .key;
