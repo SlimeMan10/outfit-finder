@@ -44,7 +44,7 @@ class WeatherChecker {
       final String? forecastURL = gridParsed['properties']?['forecast'];
       
       if (forecastURL == null) {
-        weatherProvider.updateWeather(0, WeatherCondition.unknown);
+        weatherProvider.updateWeather(0, 0, 0, WeatherCondition.unknown);
         return;
       }
       
@@ -55,20 +55,20 @@ class WeatherChecker {
       if (currentPeriod != null) {
         final temperature = currentPeriod['temperature'];
         final shortForecast = currentPeriod['shortForecast'];
-        print(
-            'Got the weather at ${DateTime.now()}. $temperature F and $shortForecast');
+        final highTemp = currentPeriod['temperature'];
+        final lowTemp = weatherParsed['properties']?['periods']?[1]?['temperature'] ?? temperature;
         
         if (temperature != null && shortForecast != null) {
           final condition = _shortForecastToCondition(shortForecast);
-          weatherProvider.updateWeather(temperature, condition);
+          weatherProvider.updateWeather(temperature, highTemp, lowTemp, condition);
         } else {
-          weatherProvider.updateWeather(0, WeatherCondition.unknown);
+          weatherProvider.updateWeather(0, 0, 0, WeatherCondition.unknown);
         }
       } else {
-        weatherProvider.updateWeather(0, WeatherCondition.unknown);
+        weatherProvider.updateWeather(0, 0, 0, WeatherCondition.unknown);
       }
     } catch (_) {
-      weatherProvider.updateWeather(0, WeatherCondition.unknown);
+      weatherProvider.updateWeather(0, 0, 0, WeatherCondition.unknown);
     } finally {
       client?.close();
       client = null;
