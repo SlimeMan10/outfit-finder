@@ -81,4 +81,4 @@ class DatabaseProvider extends ChangeNotifier {
     await outfit.clothingItems.load();
     return outfit.clothingItems.toList();
   }
-} 
+}
