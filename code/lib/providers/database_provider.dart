@@ -1,39 +1,84 @@
 import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
-import '../models/clothing_item.dart';
-import '../models/outfit.dart';
-import '../models/wardrobe.dart';
+import 'package:outfit_finder/helper/isar_helper.dart';
+import 'package:outfit_finder/models/outfit.dart';
+import 'package:outfit_finder/models/clothing_item.dart';
 
 class DatabaseProvider extends ChangeNotifier {
-  late final Wardrobe _wardrobe;
-  bool _isInitialized = false;
+  List<Outfit> _outfits = [];
+  List<ClothingItem> _clothingItems = [];
 
-  DatabaseProvider(Isar isar) {
-    _wardrobe = Wardrobe(isar: isar);
-    _initialize();
-  }
+  List<Outfit> get outfits => _outfits;
+  List<ClothingItem> get clothingItems => _clothingItems;
 
-  // Getter for integration tests
-  Wardrobe get journal => _wardrobe;
-
-  Future<void> _initialize() async {
-    await _wardrobe.loadEntries();
-    _isInitialized = true;
+  Future<void> loadData() async {
+    await initializeIsar();
+    await _loadOutfits();
+    await _loadClothingItems();
     notifyListeners();
   }
 
-  List<Outfit> get entries {
-    if (!_isInitialized) return [];
-    return _wardrobe.entries;
+  Future<void> _loadOutfits() async {
+    _outfits = await isar.outfits.where().findAll();
   }
 
-  Future<void> upsertJournalEntry(JournalEntry entry) async {
-    await _journal.upsertEntry(entry);
+  Future<void> _loadClothingItems() async {
+    _clothingItems = await isar.clothingItems.where().findAll();
+  }
+
+  Future<void> addOutfit(Outfit outfit) async {
+    await isar.writeTxn(() async {
+      await isar.outfits.put(outfit);
+    });
+    await _loadOutfits();
     notifyListeners();
   }
 
-  Future<void> deleteEntry(JournalEntry entry) async {
-    await _journal.deleteEntry(entry);
+  Future<void> addClothingItem(ClothingItem item) async {
+    await isar.writeTxn(() async {
+      await isar.clothingItems.put(item);
+    });
+    await _loadClothingItems();
     notifyListeners();
+  }
+
+  Future<void> deleteOutfit(Outfit outfit) async {
+    await isar.writeTxn(() async {
+      await isar.outfits.delete(outfit.id!);
+    });
+    await _loadOutfits();
+    notifyListeners();
+  }
+
+  Future<void> deleteClothingItem(ClothingItem item) async {
+    await isar.writeTxn(() async {
+      await isar.clothingItems.delete(item.id!);
+    });
+    await _loadClothingItems();
+    notifyListeners();
+  }
+
+  Future<void> addItemToOutfit(Outfit outfit, ClothingItem item) async {
+    await isar.writeTxn(() async {
+      await isar.clothingItems.put(item);
+      outfit.clothingItems.add(item);
+      await outfit.clothingItems.save();
+    });
+    await _loadOutfits();
+    notifyListeners();
+  }
+
+  Future<void> removeItemFromOutfit(Outfit outfit, ClothingItem item) async {
+    await isar.writeTxn(() async {
+      outfit.clothingItems.remove(item);
+      await outfit.clothingItems.save();
+    });
+    await _loadOutfits();
+    notifyListeners();
+  }
+
+  Future<List<ClothingItem>> getOutfitItems(Outfit outfit) async {
+    await outfit.clothingItems.load();
+    return outfit.clothingItems.toList();
   }
 } 
