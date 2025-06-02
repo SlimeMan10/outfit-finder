@@ -25,7 +25,7 @@
 ```bash
 # Always start with latest main
 git checkout main
-git pull origin main
+git pull origin main or git pull
 ```
 
 ### 2. Create Your Branch
