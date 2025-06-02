@@ -1,5 +1,6 @@
 import 'clothing_item.dart';
 import 'package:isar/isar.dart';
+import 'package:outfit_finder/helper/isar_helper.dart';
 //import 'package:outfit_finder/weather_conditions.dart';
 
 part 'outfit.g.dart';
@@ -10,8 +11,8 @@ class Outfit {
   // id of unique outfit entry in wardrobe
   Id? id;
 
-  // could do Map of weather condition to boolean
-  // or list of wearable weather conditions instead
+  /// name of the outfit
+  final String name;
 
   // whether outfit is wearable for gloomy weather
   final bool isForGloomy;
@@ -32,6 +33,7 @@ class Outfit {
   ///   - isForRainy: whether outfit is for rainy weather
   Outfit({
     this.id,
+    this.name = '',
     this.isForGloomy = false,
     this.isForSunny = false,
     this.isForRainy = false,
@@ -43,7 +45,7 @@ class Outfit {
   ///   - clothingItem: The clothing item to add
   ///   - isar: The Isar database instance
   Future<void> addItem(
-      {required ClothingItem clothingItem, required Isar isar}) async {
+      {required ClothingItem clothingItem}) async {
     await isar.writeTxn(() async {
       // Save the clothing item to database first
       await isar.collection<ClothingItem>().put(clothingItem);
@@ -60,7 +62,7 @@ class Outfit {
   ///   - isar: The Isar database instance
   /// Returns: whether item was deleted
   Future<bool> deleteItem(
-      {required ClothingItem itemToDelete, required Isar isar}) async {
+      {required ClothingItem itemToDelete}) async {
     await isar.writeTxn(() async {
       clothingItems.remove(itemToDelete);
       await clothingItems.save();
