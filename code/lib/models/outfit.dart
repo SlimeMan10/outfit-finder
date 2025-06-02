@@ -32,9 +32,9 @@ class Outfit {
   ///   - isForRainy: whether outfit is for rainy weather
   Outfit({
     this.id,
-      this.isForGloomy = false,
-      this.isForSunny = false,
-      this.isForRainy = false,
+    this.isForGloomy = false,
+    this.isForSunny = false,
+    this.isForRainy = false,
   });
 
   /// Adds given clothing item to outfit
@@ -42,7 +42,8 @@ class Outfit {
   /// Parameters:
   ///   - clothingItem: The clothing item to add
   ///   - isar: The Isar database instance
-    Future<void> addItem({required ClothingItem clothingItem, required Isar isar}) async {
+  Future<void> addItem(
+      {required ClothingItem clothingItem, required Isar isar}) async {
     await isar.writeTxn(() async {
       // Save the clothing item to database first
       await isar.collection<ClothingItem>().put(clothingItem);
@@ -58,11 +59,13 @@ class Outfit {
   ///   - itemToDelete: The clothing item to delete
   ///   - isar: The Isar database instance
   /// Returns: whether item was deleted
-  Future<bool> deleteItem({required ClothingItem itemToDelete, required Isar isar}) async {
+  Future<bool> deleteItem(
+      {required ClothingItem itemToDelete, required Isar isar}) async {
     await isar.writeTxn(() async {
       clothingItems.remove(itemToDelete);
       await clothingItems.save();
     });
+
     /// we might need to check if it was deleted
     return true;
   }
@@ -72,5 +75,5 @@ class Outfit {
   Future<List<ClothingItem>> getClothingItems() async {
     await clothingItems.load();
     return clothingItems.toList();
-}
+  }
 }
