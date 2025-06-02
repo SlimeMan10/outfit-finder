@@ -5,6 +5,7 @@ import 'package:outfit_finder/providers/position_provider.dart';
 import 'package:outfit_finder/providers/weather_provider.dart';
 import 'package:outfit_finder/views/outfit_finder_app.dart';
 import 'package:provider/provider.dart';
+import 'package:outfit_finder/models/outfit_db.dart';
 
 /// Load all of the venues from the JSON file into the Venues DB
 /// This is an asynchronous call since we're going to a secondary

@@ -9,6 +9,12 @@ class WeatherProvider extends ChangeNotifier {
   /// Current temperature in Fahrenheit
   int _tempInFahrenheit = 0;
 
+  /// High temperature for the day in Fahrenheit
+  int _highTempInFahrenheit = 0;
+
+  /// Low temperature for the day in Fahrenheit
+  int _lowTempInFahrenheit = 0;
+
   /// Current weather condition
   WeatherCondition _condition = WeatherCondition.unknown;
 
@@ -70,7 +76,7 @@ class WeatherProvider extends ChangeNotifier {
     try {
       await _check.fetchAndUpdateCurrentSeattleWeather();
     } catch (error) {
-      _updateWeatherState(0, WeatherCondition.unknown);
+      _updateWeatherState(0, 0, 0, WeatherCondition.unknown);
     }
   }
 
@@ -87,20 +93,34 @@ class WeatherProvider extends ChangeNotifier {
   /// Updates weather data
   /// Parameters:
   ///   - newTempFahrenheit: New temperature
+  ///   - newHighTempFahrenheit: New high temperature
+  ///   - newLowTempFahrenheit: New low temperature
   ///   - newCondition: New weather condition
-  void updateWeather(int newTempFahrenheit, WeatherCondition newCondition) {
-    _updateWeatherState(newTempFahrenheit, newCondition);
+  void updateWeather(int newTempFahrenheit, int newHighTempFahrenheit, int newLowTempFahrenheit, WeatherCondition newCondition) {
+    _updateWeatherState(newTempFahrenheit, newHighTempFahrenheit, newLowTempFahrenheit, newCondition);
   }
 
   /// Updates weather state
   /// Parameters:
   ///   - newTempFahrenheit: New temperature
+  ///   - newHighTempFahrenheit: New high temperature
+  ///   - newLowTempFahrenheit: New low temperature
   ///   - newCondition: New weather condition
-  void _updateWeatherState(int newTempFahrenheit, WeatherCondition newCondition) {
+  void _updateWeatherState(int newTempFahrenheit, int newHighTempFahrenheit, int newLowTempFahrenheit, WeatherCondition newCondition) {
     bool hasChanges = false;
     
     if (_tempInFahrenheit != newTempFahrenheit) {
       _tempInFahrenheit = newTempFahrenheit;
+      hasChanges = true;
+    }
+    
+    if (_highTempInFahrenheit != newHighTempFahrenheit) {
+      _highTempInFahrenheit = newHighTempFahrenheit;
+      hasChanges = true;
+    }
+    
+    if (_lowTempInFahrenheit != newLowTempFahrenheit) {
+      _lowTempInFahrenheit = newLowTempFahrenheit;
       hasChanges = true;
     }
     

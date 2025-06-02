@@ -2,6 +2,8 @@ import 'clothing_item.dart';
 import 'package:isar/isar.dart';
 //import 'package:outfit_finder/weather_conditions.dart';
 
+part 'outfit.g.dart';
+
 // represents an inputted outfit in wardrobe
 @collection
 class Outfit {
@@ -21,26 +23,29 @@ class Outfit {
   // clothing items comprising outfit
   final IsarLinks<ClothingItem> clothingItems = IsarLinks<ClothingItem>();
 
-  // Constructs Outfit with optional named params if given
-  // (all bools default to false)
-  // Params:
-  //  id: unique outfit entry id, increments automatically by 1
-  //  isForGloomy: whether outfit is for gloomy weather
-  //  isForSunny: whether outfit is for sunny weather
-  //  isForRainy: whether outfit is for rainy weather
-  //  clothingItems: clothing items comprising outfit, defaults to empty list
-  Outfit(
-      {this.id,
+  /// Constructs Outfit with optional named params if given
+  /// (all bools default to false)
+  /// Parameters:
+  ///   - id: unique outfit entry id, increments automatically by 1
+  ///   - isForGloomy: whether outfit is for gloomy weather
+  ///   - isForSunny: whether outfit is for sunny weather
+  ///   - isForRainy: whether outfit is for rainy weather
+  Outfit({
+    this.id,
       this.isForGloomy = false,
       this.isForSunny = false,
       this.isForRainy = false,
+  });
 
-  // adds given clothing item to outfit
-  // (does not enforce uniqueness of items)
+  /// Adds given clothing item to outfit
+  /// (does not enforce uniqueness of items)
+  /// Parameters:
+  ///   - clothingItem: The clothing item to add
+  ///   - isar: The Isar database instance
     Future<void> addItem({required ClothingItem clothingItem, required Isar isar}) async {
     await isar.writeTxn(() async {
       // Save the clothing item to database first
-      await isar.clothingItems.put(clothingItem);
+      await isar.collection<ClothingItem>().put(clothingItem);
       // Add to this outfit's items
       clothingItems.add(clothingItem);
       // Save the relationship
@@ -48,8 +53,11 @@ class Outfit {
     });
   }
 
-  // Deletes given clothing item if in outfit
-  // Returns whether item was deleted
+  /// Deletes given clothing item if in outfit
+  /// Parameters:
+  ///   - itemToDelete: The clothing item to delete
+  ///   - isar: The Isar database instance
+  /// Returns: whether item was deleted
   Future<bool> deleteItem({required ClothingItem itemToDelete, required Isar isar}) async {
     await isar.writeTxn(() async {
       clothingItems.remove(itemToDelete);
@@ -59,9 +67,10 @@ class Outfit {
     return true;
   }
 
-  // gets a shallow copy of clothing items
+  /// Gets a shallow copy of clothing items
+  /// Returns: List of clothing items in this outfit
   Future<List<ClothingItem>> getClothingItems() async {
     await clothingItems.load();
     return clothingItems.toList();
-  }
+}
 }
