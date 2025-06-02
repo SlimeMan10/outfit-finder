@@ -19,7 +19,7 @@ class Outfit {
   final bool isForRainy;
 
   // clothing items comprising outfit
-  final List<ClothingItem> _clothingItems;
+  final IsarLinks<ClothingItem> clothingItems = IsarLinks<ClothingItem>();
 
   // Constructs Outfit with optional named params if given
   // (all bools default to false)
@@ -34,18 +34,34 @@ class Outfit {
       this.isForGloomy = false,
       this.isForSunny = false,
       this.isForRainy = false,
-      clothingItems = const []})
-      : _clothingItems = clothingItems;
 
   // adds given clothing item to outfit
   // (does not enforce uniqueness of items)
-  void addItem({required clothingItem}) => _clothingItems.add(clothingItem);
+    Future<void> addItem({required ClothingItem clothingItem, required Isar isar}) async {
+    await isar.writeTxn(() async {
+      // Save the clothing item to database first
+      await isar.clothingItems.put(clothingItem);
+      // Add to this outfit's items
+      clothingItems.add(clothingItem);
+      // Save the relationship
+      await clothingItems.save();
+    });
+  }
 
   // Deletes given clothing item if in outfit
   // Returns whether item was deleted
-  bool deleteItem({required itemToDelete}) =>
-      _clothingItems.remove(itemToDelete);
+  Future<bool> deleteItem({required ClothingItem itemToDelete, required Isar isar}) async {
+    await isar.writeTxn(() async {
+      clothingItems.remove(itemToDelete);
+      await clothingItems.save();
+    });
+    /// we might need to check if it was deleted
+    return true;
+  }
 
   // gets a shallow copy of clothing items
-  List<ClothingItem> get clothingItems => List.from(_clothingItems);
+  Future<List<ClothingItem>> getClothingItems() async {
+    await clothingItems.load();
+    return clothingItems.toList();
+  }
 }
