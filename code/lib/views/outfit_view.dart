@@ -3,6 +3,7 @@ import 'package:outfit_finder/models/outfit.dart';
 import 'package:flutter/material.dart';
 import 'package:outfit_finder/helper/color_helper.dart';
 import 'package:outfit_finder/providers/database_provider.dart';
+import 'package:outfit_finder/widgets/clothing_item_widget.dart';
 
 // individual outfit view for editing or creating a new outfit
 class OutfitView extends StatefulWidget {
@@ -41,14 +42,36 @@ class _OutfitViewState extends State<OutfitView> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Column(
-      children: [_createItemTile()],
+      children: [
+        _createItemTile(),
+        const Text('Clothing Items'),
+        _displayClothingItems()
+      ],
     ));
+  }
+
+  // displays outfit's clothing items in a rounded box
+  Widget _displayClothingItems() {
+    final clothingItems = widget.outfit.clothingItems
+        .map((item) => ClothingItemWidget(item: item))
+        .toList();
+
+    return Container(
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(2),
+            border: Border.all(color: Colors.grey)),
+        child: GridView.count(
+          crossAxisCount: 2,
+          children: clothingItems,
+        ));
   }
 
   // creates tile for creating a new clothing item
   // gets the item description and color
   Widget _createItemTile() {
     return Container(
+      decoration: BoxDecoration(
+          color: Colors.grey, borderRadius: BorderRadius.circular(2)),
       child: Column(
         children: [
           TextFormField(
@@ -77,11 +100,9 @@ class _OutfitViewState extends State<OutfitView> {
     final colors = ColorHelper().colorMap.values.toList();
     final colorButtons =
         colors.map((color) => _buildColorButton(color)).toList();
-    return Column(
-      children: [
-        Row(children: colorButtons.sublist(0, 7)),
-        Row(children: colorButtons.sublist(8, 15))
-      ],
+    return GridView.count(
+      crossAxisCount: 8,
+      children: colorButtons,
     );
   }
 
