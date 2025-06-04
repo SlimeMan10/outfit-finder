@@ -18,12 +18,18 @@ Future<DatabaseProvider> initializeDatabase() async {
   return dbProvider;
 }
 
-void main() {
+void main() async {
   // Ensure that the flutter framework is initialized.
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize database and load data
-  initializeDatabase().then((dbProvider) => runApp(
+  // Initialize database
+  await initializeIsar();
+  
+  // Create providers
+  final dbProvider = DatabaseProvider();
+  await dbProvider.loadData();
+
+  runApp(
     MultiProvider(
       providers: [
         // The PositionProvider is used to get the current location of the user
@@ -36,5 +42,5 @@ void main() {
       ],
       child: OutFitFinderApp(venues: dbProvider),
     ),
-  ));
+  );
 }
