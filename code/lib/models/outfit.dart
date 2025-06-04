@@ -9,7 +9,7 @@ part 'outfit.g.dart';
 @collection
 class Outfit {
   // id of unique outfit entry in wardrobe
-  Id id = 0;
+  Id id = Isar.autoIncrement;
 
   /// name of the outfit
   final String name;
