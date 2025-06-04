@@ -9,7 +9,7 @@ part 'outfit.g.dart';
 @collection
 class Outfit {
   // id of unique outfit entry in wardrobe
-  Id id = 0;
+  Id id = Isar.autoIncrement;
 
   /// name of the outfit
   final String name;
@@ -32,7 +32,6 @@ class Outfit {
   ///   - isForSunny: whether outfit is for sunny weather
   ///   - isForRainy: whether outfit is for rainy weather
   Outfit({
-    this.id = 0,
     this.name = '',
     this.isForGloomy = false,
     this.isForSunny = false,

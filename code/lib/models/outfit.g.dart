@@ -88,12 +88,12 @@ Outfit _outfitDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Outfit(
-    id: id,
     isForGloomy: reader.readBoolOrNull(offsets[0]) ?? false,
     isForRainy: reader.readBoolOrNull(offsets[1]) ?? false,
     isForSunny: reader.readBoolOrNull(offsets[2]) ?? false,
     name: reader.readStringOrNull(offsets[3]) ?? '',
   );
+  object.id = id;
   return object;
 }
 
