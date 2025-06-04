@@ -11,19 +11,22 @@ class DatabaseProvider extends ChangeNotifier {
   List<Outfit> get outfits => _outfits;
   List<ClothingItem> get clothingItems => _clothingItems;
 
-  Future<void> loadData() async {
-    await initializeIsar();
-    await _loadOutfits();
-    await _loadClothingItems();
-    notifyListeners();
-  }
-
   Future<void> _loadOutfits() async {
     _outfits = await isar.outfits.where().findAll();
   }
 
   Future<void> _loadClothingItems() async {
     _clothingItems = await isar.clothingItems.where().findAll();
+  }
+
+  Future<void> loadData() async {
+    await _loadOutfits();
+    await _loadClothingItems();
+    notifyListeners();
+  }
+
+  Future<List<Outfit>> getAllOutfits() async {
+    return await isar.outfits.where().findAll();
   }
 
   Future<void> addOutfit(Outfit outfit) async {
