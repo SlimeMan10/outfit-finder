@@ -29,24 +29,8 @@ void main() async {
   final dbProvider = DatabaseProvider();
   
   // Clear existing data and add sample data
-  print('DEBUG: Initializing database with sample data...');
   await dbProvider.clearDatabase();
   await dbProvider.addSampleOutfits();
-  
-  // Comprehensive testing
-  await dbProvider.debugDatabaseState();
-  await dbProvider.verifyDataIntegrity();
-  await dbProvider.testAllOutfits();
-  
-  // Verify data was loaded using getAllOutfits (which should load relationships)
-  final outfits = await dbProvider.getAllOutfits();
-  print('\nDEBUG: Final verification - getAllOutfits() returned ${outfits.length} outfits:');
-  for (var outfit in outfits) {
-    print('DEBUG: - ${outfit.name} with ${outfit.clothingItems.length} items');
-    for (var item in outfit.clothingItems) {
-      print('DEBUG:   * ${item.description} (${item.colorName})');
-    }
-  }
   
   runApp(
     MultiProvider(
