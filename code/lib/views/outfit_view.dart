@@ -4,18 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:outfit_finder/helper/color_helper.dart';
 import 'package:outfit_finder/providers/database_provider.dart';
 import 'package:outfit_finder/widgets/clothing_item_widget.dart';
+import 'package:provider/provider.dart';
 
 // individual outfit view for editing or creating a new outfit
 class OutfitView extends StatefulWidget {
   // outfit to edit/create
   final Outfit outfit;
 
-  // database provider managing outfits and clothing items
-  //final DatabaseProvider databaseProvider;
-
   // constructs a OutfitView with given outfit and database provider
-  const OutfitView(
-      {super.key, required this.outfit});
+  const OutfitView({super.key, required this.outfit});
 
   @override
   State<OutfitView> createState() => _OutfitViewState();
@@ -61,6 +58,7 @@ class _OutfitViewState extends State<OutfitView> {
     return Scaffold(
         body: Column(
       children: [
+        _makeTopBar(context),
         _displayWeatherIcons(),
         _createItemTile(),
         const Text('Clothing Items'),
@@ -70,14 +68,43 @@ class _OutfitViewState extends State<OutfitView> {
     ));
   }
 
+  // makes top bar with back button and undo, redo, delete buttons
+  Widget _makeTopBar(BuildContext context) {
+    // TODO: implement undo/redo item deletions and delete item buttons
+    return AppBar(
+      actions: [
+        IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_left),
+        )
+      ],
+    );
+  }
+
   Widget _makeSaveButton(BuildContext context) {
     return ElevatedButton(
         onPressed: () => _doSave(context), child: const Text('Save'));
   }
 
-  void _doSave(BuildContext context) {
-    // TODO: save edited Outfit to db from state weather bools and items 
-    
+  // saves edited Outfit to db from state weather bools and items
+  void _doSave(BuildContext context) async {
+    // creates updated outfit
+    final newOutfit = Outfit(
+        id: widget.outfit.id,
+        name: currentOutfitNameText,
+        isForGloomy: isForGloomy,
+        isForRainy: isForRainy,
+        isForSunny: isForSunny);
+
+    // adds new items
+    // does not add duplicate items?
+    for (var item in clothingItems) {
+      await newOutfit.addItem(clothingItem: item);
+    }
+
+    if (context.mounted) {
+      await context.read<DatabaseProvider>().addOutfit(newOutfit);
+    }
   }
 
   // displays weather icon buttons for weather condition tags of outfit
@@ -162,14 +189,13 @@ class _OutfitViewState extends State<OutfitView> {
     );
   }
 
-  // adds new item from current description and color to items 
+  // adds new item from current description and color to items
   void addItem() {
     final colorName = ColorHelper().getStringFromColor(currentItemColor);
     final itemToAdd =
         ClothingItem(description: currentItemText, colorName: colorName);
 
     clothingItems.add(itemToAdd);
-    //widget.databaseProvider.addItemToOutfit(widget.outfit, itemToAdd);
   }
 
   // builds 8x2 grid of color buttons to select for new clothing item
