@@ -4,6 +4,7 @@ import 'package:outfit_finder/models/clothing_item.dart';
 import 'package:outfit_finder/weather_conditions.dart';
 import 'package:provider/provider.dart';
 import 'package:outfit_finder/providers/weather_provider.dart';
+import 'package:outfit_finder/widgets/outfit_card.dart';
 
 /// A view that displays outfits filtered by weather condition
 class WeatherFilterView extends StatefulWidget {
@@ -91,28 +92,7 @@ class _WeatherFilterViewState extends State<WeatherFilterView> {
               if (!matchesCondition) {
                 return const SizedBox.shrink(); // Hide non-matching outfits
               }
-
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: ListTile(
-                  title: Text(outfit.name),
-                  subtitle: FutureBuilder<List<ClothingItem>>(
-                    future: outfit.getClothingItems(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Text('Loading items...');
-                      }
-                      if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      }
-                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Text('No items in this outfit');
-                      }
-                      return Text(snapshot.data!.map((item) => item.description).join(', '));
-                    },
-                  ),
-                ),
-              );
+              return OutfitCard(outfit: outfit, currentWeather: currentWeather);
             },
           ),
         ),
