@@ -102,7 +102,7 @@ P _clothingItemDeserializeProp<P>(
 }
 
 Id _clothingItemGetId(ClothingItem object) {
-  return object.id ?? Isar.autoIncrement;
+  return object.id;
 }
 
 List<IsarLinkBase<dynamic>> _clothingItemGetLinks(ClothingItem object) {
@@ -523,25 +523,8 @@ extension ClothingItemQueryFilter
     });
   }
 
-  QueryBuilder<ClothingItem, ClothingItem, QAfterFilterCondition> idIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'id',
-      ));
-    });
-  }
-
-  QueryBuilder<ClothingItem, ClothingItem, QAfterFilterCondition>
-      idIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'id',
-      ));
-    });
-  }
-
   QueryBuilder<ClothingItem, ClothingItem, QAfterFilterCondition> idEqualTo(
-      Id? value) {
+      Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'id',
@@ -551,7 +534,7 @@ extension ClothingItemQueryFilter
   }
 
   QueryBuilder<ClothingItem, ClothingItem, QAfterFilterCondition> idGreaterThan(
-    Id? value, {
+    Id value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -564,7 +547,7 @@ extension ClothingItemQueryFilter
   }
 
   QueryBuilder<ClothingItem, ClothingItem, QAfterFilterCondition> idLessThan(
-    Id? value, {
+    Id value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -577,8 +560,8 @@ extension ClothingItemQueryFilter
   }
 
   QueryBuilder<ClothingItem, ClothingItem, QAfterFilterCondition> idBetween(
-    Id? lower,
-    Id? upper, {
+    Id lower,
+    Id upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
