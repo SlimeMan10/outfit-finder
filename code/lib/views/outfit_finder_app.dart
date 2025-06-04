@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:outfit_finder/providers/database_provider.dart';
 import 'package:outfit_finder/components/weather_filter.dart';
 import 'package:outfit_finder/models/outfit.dart';
+import 'package:outfit_finder/widgets/custom_top_bar.dart';
+import 'package:outfit_finder/weather_conditions.dart';
 
 class OutFitFinderApp extends StatefulWidget {
   final DatabaseProvider venues;
@@ -15,11 +17,28 @@ class OutFitFinderApp extends StatefulWidget {
 class _OutFitFinderAppState extends State<OutFitFinderApp> {
   int _selectedIndex = 0;
   late Future<List<Outfit>> _outfitsFuture;
+  WeatherCondition? _selectedWeatherFilter;
 
   @override
   void initState() {
     super.initState();
     _outfitsFuture = widget.venues.getAllOutfits();
+  }
+
+  List<Outfit> _filterOutfits(List<Outfit> outfits) {
+    if (_selectedWeatherFilter == null) return outfits;
+    switch (_selectedWeatherFilter) {
+      case WeatherCondition.sunny:
+        return outfits.where((o) => o.isForSunny).toList();
+      case WeatherCondition.gloomy:
+        return outfits.where((o) => o.isForGloomy).toList();
+      case WeatherCondition.rainy:
+        return outfits.where((o) => o.isForRainy).toList();
+      case WeatherCondition.slightlyCloudy:
+        return outfits; // Show all for slightly cloudy
+      default:
+        return outfits;
+    }
   }
 
   @override
@@ -31,72 +50,40 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
         useMaterial3: true,
       ),
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Outfit Finder'),
-        ),
-        body: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Hello! This is a test message to verify rendering.',
-                style: TextStyle(fontSize: 20),
-              ),
-            ),
-            Expanded(
-              child: FutureBuilder<List<Outfit>>(
-                future: _outfitsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Error: ${snapshot.error}'),
-                    );
-                  }
-
-                  final outfits = snapshot.data ?? [];
-                  if (outfits.isEmpty) {
-                    return const Center(
-                      child: Text('No outfits available'),
-                    );
-                  }
-
-                  return IndexedStack(
-                    index: _selectedIndex,
-                    children: [
-                      WeatherFilter(outfits: outfits),
-                      const Center(
-                        child: Text('All Outfits View Coming Soon'),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _selectedIndex,
-          onDestinationSelected: (int index) {
-            setState(() {
-              _selectedIndex = index;
-            });
+        body: FutureBuilder<List<Outfit>>(
+          future: _outfitsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            if (snapshot.hasError) {
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              );
+            }
+            final outfits = snapshot.data ?? [];
+            if (outfits.isEmpty) {
+              return const Center(
+                child: Text('No outfits available'),
+              );
+            }
+            final filteredOutfits = _filterOutfits(outfits);
+            return Column(
+              children: [
+                CustomTopBar(
+                  onFilterPressed: () {},
+                  onWeatherFilterSelected: (condition) {
+                    setState(() {
+                      _selectedWeatherFilter = condition;
+                    });
+                  },
+                ),
+                Expanded(child: WeatherFilter(outfits: filteredOutfits)),
+              ],
+            );
           },
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.cloud),
-              label: 'Weather Filter',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.list),
-              label: 'All Outfits',
-            ),
-          ],
         ),
       ),
     );

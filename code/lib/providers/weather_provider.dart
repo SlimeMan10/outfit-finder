@@ -31,6 +31,8 @@ class WeatherProvider extends ChangeNotifier {
   int get tempInFahrenheit => _tempInFahrenheit;
   WeatherCondition get condition => _condition;
   bool get loading => _loading;
+  int get highTempFahrenheit => _highTempInFahrenheit;
+  int get lowTempFahrenheit => _lowTempInFahrenheit;
 
   /// Creates WeatherProvider and starts updates
   WeatherProvider() {
