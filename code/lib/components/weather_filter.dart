@@ -4,6 +4,7 @@ import 'package:outfit_finder/models/clothing_item.dart';
 import 'package:outfit_finder/weather_conditions.dart';
 import 'package:provider/provider.dart';
 import 'package:outfit_finder/providers/weather_provider.dart';
+import 'package:outfit_finder/widgets/outfit_card.dart';
 
 /// A component that displays outfits filtered by weather condition
 class WeatherFilter extends StatefulWidget {
@@ -95,18 +96,11 @@ class _WeatherFilterState extends State<WeatherFilter> {
   /// Builds a single outfit item in the list
   Widget _buildOutfitItem(BuildContext context, int index) {
     final outfit = widget.outfits[index];
-    
+    final currentWeather = context.watch<WeatherProvider>().condition;
     if (!_matchesWeatherCondition(outfit)) {
       return const SizedBox.shrink();
     }
-
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: ListTile(
-        title: Text(outfit.name),
-        subtitle: _buildOutfitItemsList(outfit),
-      ),
-    );
+    return OutfitCard(outfit: outfit, currentWeather: currentWeather);
   }
 
   /// Checks if an outfit matches the selected weather condition

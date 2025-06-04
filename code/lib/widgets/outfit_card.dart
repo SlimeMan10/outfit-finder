@@ -1,31 +1,73 @@
 import 'package:flutter/material.dart';
 import 'package:outfit_finder/models/outfit.dart';
-import 'package:outfit_finder/widgets/clothing_item_widget.dart';
 import 'package:outfit_finder/views/outfit_view.dart';
+import 'package:outfit_finder/weather_conditions.dart';
+import 'package:outfit_finder/helper/color_helper.dart';
 
 // widget card to display each outfit
 class OutfitCard extends StatelessWidget {
   // outfit to display
   final Outfit outfit;
+  final WeatherCondition currentWeather;
 
   // constructs an OutfitCard with given outfit
-  const OutfitCard({super.key, required this.outfit});
+  const OutfitCard({super.key, required this.outfit, required this.currentWeather});
 
   // builds outfit card displaying
   // outfit name, weather tags, clothing items, and edit button
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(outfit.name),
-      subtitle: Column(
-        children: [
-          _displayWeatherTags(),
-          _displayClothingItems(),
-        ],
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    outfit.name,
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => _navigateToOutfit(context, outfit),
+                  child: const Text('Edit', style: TextStyle(fontSize: 16)),
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size(40, 30)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            _buildWeatherTag(),
+            const SizedBox(height: 12),
+            FutureBuilder<List<dynamic>>( // dynamic for ClothingItem
+              future: outfit.getClothingItems(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Text('Loading items...');
+                }
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Text('No items in this outfit');
+                }
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: snapshot.data!
+                      .map((item) => _clothingChip(item))
+                      .toList(),
+                );
+              },
+            ),
+          ],
+        ),
       ),
-      leading: TextButton(
-          onPressed: () => _navigateToOutfit(context, outfit),
-          child: const Text('Edit')),
     );
   }
 
@@ -36,36 +78,54 @@ class OutfitCard extends StatelessWidget {
         MaterialPageRoute(builder: (context) => OutfitView(outfit: outfit)));
   }
 
-  // displays outfit's weather tags
-  Widget _displayWeatherTags() {
+  Widget _buildWeatherTag() {
+    if (outfit.isForSunny) {
+      return _weatherRow(Icons.wb_sunny, 'Sunny');
+    } else if (outfit.isForRainy) {
+      return _weatherRow(Icons.beach_access, 'Rainy');
+    } else if (outfit.isForGloomy) {
+      return _weatherRow(Icons.cloud, 'Cloudy');
+    } else {
+      return _weatherRow(Icons.help_outline, 'Any');
+    }
+  }
+
+  Widget _weatherRow(IconData icon, String label) {
     return Row(
       children: [
-        if (outfit.isForRainy) ...[
-          const Icon(Icons.sunny),
-          const Text('Sunny')
-        ],
-        if (outfit.isForGloomy) ...[
-          const Icon(Icons.cloud),
-          const Text('Cloudy')
-        ],
-        if (outfit.isForSunny) ...[const Icon(Icons.sunny), const Text('Sunny')]
+        Icon(icon, size: 18),
+        const SizedBox(width: 4),
+        Text(label, style: const TextStyle(fontSize: 16)),
       ],
     );
   }
 
-  // displays outfit's clothing items in a rounded box
-  Widget _displayClothingItems() {
-    final clothingItemWidgets = outfit.clothingItems
-        .map((item) => ClothingItemWidget(item: item))
-        .toList();
-
+  Widget _clothingChip(dynamic item) {
+    final colorHelper = ColorHelper();
+    final color = colorHelper.getColorFromString(item.colorName);
     return Container(
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(2),
-            border: Border.all(color: Colors.grey)),
-        child: GridView.count(
-          crossAxisCount: 2, // 2 items per row
-          children: clothingItemWidgets,
-        ));
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(item.description, style: const TextStyle(fontSize: 15)),
+          const SizedBox(width: 6),
+          Container(
+            width: 14,
+            height: 14,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.grey.shade400, width: 1),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

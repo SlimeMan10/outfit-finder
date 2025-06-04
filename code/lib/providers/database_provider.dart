@@ -84,4 +84,82 @@ class DatabaseProvider extends ChangeNotifier {
     await outfit.clothingItems.load();
     return outfit.clothingItems.toList();
   }
+
+  /// Adds sample outfits to the database for testing
+  Future<void> addSampleOutfits() async {
+    // Clear existing data
+    await isar.writeTxn(() async {
+      await isar.clear();
+    });
+
+    // Create sample outfits
+    final summerOutfit = Outfit(
+      name: 'Summer Casual',
+      isForSunny: true,
+      isForGloomy: false,
+      isForRainy: false,
+    );
+
+    final rainyOutfit = Outfit(
+      name: 'Rainy Day',
+      isForSunny: false,
+      isForGloomy: true,
+      isForRainy: true,
+    );
+
+    final cloudyOutfit = Outfit(
+      name: 'Cloudy Day',
+      isForSunny: false,
+      isForGloomy: true,
+      isForRainy: false,
+    );
+
+    // Create clothing items
+    final summerItems = [
+      ClothingItem(description: 'White T-shirt', colorName: 'white'),
+      ClothingItem(description: 'Blue Jeans', colorName: 'blue'),
+      ClothingItem(description: 'Sunglasses', colorName: 'black'),
+    ];
+
+    final rainyItems = [
+      ClothingItem(description: 'Rain Jacket', colorName: 'yellow'),
+      ClothingItem(description: 'Waterproof Boots', colorName: 'black'),
+      ClothingItem(description: 'Umbrella', colorName: 'blue'),
+    ];
+
+    final cloudyItems = [
+      ClothingItem(description: 'Light Sweater', colorName: 'gray'),
+      ClothingItem(description: 'Dark Jeans', colorName: 'navy'),
+      ClothingItem(description: 'Comfortable Shoes', colorName: 'brown'),
+    ];
+
+    // Add outfits and their items to the database
+    await isar.writeTxn(() async {
+      await isar.outfits.put(summerOutfit);
+      await isar.outfits.put(rainyOutfit);
+      await isar.outfits.put(cloudyOutfit);
+
+      for (var item in summerItems) {
+        await isar.clothingItems.put(item);
+        summerOutfit.clothingItems.add(item);
+      }
+      await summerOutfit.clothingItems.save();
+
+      for (var item in rainyItems) {
+        await isar.clothingItems.put(item);
+        rainyOutfit.clothingItems.add(item);
+      }
+      await rainyOutfit.clothingItems.save();
+
+      for (var item in cloudyItems) {
+        await isar.clothingItems.put(item);
+        cloudyOutfit.clothingItems.add(item);
+      }
+      await cloudyOutfit.clothingItems.save();
+    });
+
+    await _loadOutfits();
+    await _loadClothingItems();
+    notifyListeners();
+  }
 }
