@@ -11,11 +11,11 @@ class OutfitView extends StatefulWidget {
   final Outfit outfit;
 
   // database provider managing outfits and clothing items
-  final DatabaseProvider databaseProvider;
+  //final DatabaseProvider databaseProvider;
 
   // constructs a OutfitView with given outfit and database provider
   const OutfitView(
-      {super.key, required this.outfit, required this.databaseProvider});
+      {super.key, required this.outfit});
 
   @override
   State<OutfitView> createState() => _OutfitViewState();
@@ -64,9 +64,20 @@ class _OutfitViewState extends State<OutfitView> {
         _displayWeatherIcons(),
         _createItemTile(),
         const Text('Clothing Items'),
-        _displayClothingItems()
+        _displayClothingItems(),
+        _makeSaveButton(context)
       ],
     ));
+  }
+
+  Widget _makeSaveButton(BuildContext context) {
+    return ElevatedButton(
+        onPressed: () => _doSave(context), child: const Text('Save'));
+  }
+
+  void _doSave(BuildContext context) {
+    // TODO: save edited Outfit to db from state weather bools and items 
+    
   }
 
   // displays weather icon buttons for weather condition tags of outfit
@@ -151,12 +162,14 @@ class _OutfitViewState extends State<OutfitView> {
     );
   }
 
-  // creates and adds item to outfit with current description and color
+  // adds new item from current description and color to items 
   void addItem() {
     final colorName = ColorHelper().getStringFromColor(currentItemColor);
     final itemToAdd =
         ClothingItem(description: currentItemText, colorName: colorName);
-    widget.databaseProvider.addItemToOutfit(widget.outfit, itemToAdd);
+
+    clothingItems.add(itemToAdd);
+    //widget.databaseProvider.addItemToOutfit(widget.outfit, itemToAdd);
   }
 
   // builds 8x2 grid of color buttons to select for new clothing item
