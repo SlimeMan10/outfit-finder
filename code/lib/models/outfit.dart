@@ -78,4 +78,34 @@ class Outfit {
     await clothingItems.load();
     return clothingItems.toList();
   }
+
+  /// Creates a dummy outfit with a white t-shirt, blue jeans, and white shoes
+  /// suitable for sunny weather
+  static Outfit createDummyOutfit() {
+    final outfit = Outfit(
+      name: 'Summer Casual',
+      isForSunny: true,
+    );
+
+    final tshirt = ClothingItem(
+      description: 'T-shirt',
+      colorName: 'white',
+    );
+
+    final jeans = ClothingItem(
+      description: 'Jeans',
+      colorName: 'darkblue',
+    );
+
+    final shoes = ClothingItem(
+      description: 'Shoes',
+      colorName: 'white',
+    );
+
+    outfit.addItem(clothingItem: tshirt);
+    outfit.addItem(clothingItem: jeans);
+    outfit.addItem(clothingItem: shoes);
+
+    return outfit;
+  }
 }

@@ -28,6 +28,12 @@ void main() async {
   // Create providers
   final dbProvider = DatabaseProvider();
   await dbProvider.loadData();
+  
+  // Add sample data if the database is empty
+  final outfits = await dbProvider.getAllOutfits();
+  if (outfits.isEmpty) {
+    await dbProvider.addSampleOutfits();
+  }
 
   runApp(
     MultiProvider(
