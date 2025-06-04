@@ -118,7 +118,7 @@ P _outfitDeserializeProp<P>(
 }
 
 Id _outfitGetId(Outfit object) {
-  return object.id ?? Isar.autoIncrement;
+  return object.id;
 }
 
 List<IsarLinkBase<dynamic>> _outfitGetLinks(Outfit object) {
@@ -207,23 +207,7 @@ extension OutfitQueryWhere on QueryBuilder<Outfit, Outfit, QWhereClause> {
 }
 
 extension OutfitQueryFilter on QueryBuilder<Outfit, Outfit, QFilterCondition> {
-  QueryBuilder<Outfit, Outfit, QAfterFilterCondition> idIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'id',
-      ));
-    });
-  }
-
-  QueryBuilder<Outfit, Outfit, QAfterFilterCondition> idIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'id',
-      ));
-    });
-  }
-
-  QueryBuilder<Outfit, Outfit, QAfterFilterCondition> idEqualTo(Id? value) {
+  QueryBuilder<Outfit, Outfit, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'id',
@@ -233,7 +217,7 @@ extension OutfitQueryFilter on QueryBuilder<Outfit, Outfit, QFilterCondition> {
   }
 
   QueryBuilder<Outfit, Outfit, QAfterFilterCondition> idGreaterThan(
-    Id? value, {
+    Id value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -246,7 +230,7 @@ extension OutfitQueryFilter on QueryBuilder<Outfit, Outfit, QFilterCondition> {
   }
 
   QueryBuilder<Outfit, Outfit, QAfterFilterCondition> idLessThan(
-    Id? value, {
+    Id value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -259,8 +243,8 @@ extension OutfitQueryFilter on QueryBuilder<Outfit, Outfit, QFilterCondition> {
   }
 
   QueryBuilder<Outfit, Outfit, QAfterFilterCondition> idBetween(
-    Id? lower,
-    Id? upper, {
+    Id lower,
+    Id upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
