@@ -90,7 +90,6 @@ class _OutfitViewState extends State<OutfitView> {
   void _doSave(BuildContext context) async {
     // creates updated outfit
     final newOutfit = Outfit(
-        id: widget.outfit.id,
         name: currentOutfitNameText,
         isForGloomy: isForGloomy,
         isForRainy: isForRainy,

@@ -195,7 +195,7 @@ class DatabaseProvider extends ChangeNotifier {
     print('=== END TEST ===\n');
   }
 
-  /// COMPLETELY REWRITTEN - Adds sample outfits to the database for testing
+  /// Fixed version - each outfit created in separate transaction
   Future<void> addSampleOutfits() async {
     print('DEBUG: Starting to add sample outfits...');
     
@@ -203,98 +203,111 @@ class DatabaseProvider extends ChangeNotifier {
     await clearDatabase();
 
     try {
-      // Create all clothing items FIRST, then create outfits and link them
+      // Create Summer Outfit in its own transaction
+      print('DEBUG: Creating Summer Casual outfit...');
       await isar.writeTxn(() async {
-        // Create all clothing items first
-        final summerItems = [
-          ClothingItem(description: 'White T-shirt', colorName: 'white'),
-          ClothingItem(description: 'Blue Jeans', colorName: 'blue'),
-          ClothingItem(description: 'Sunglasses', colorName: 'black'),
-        ];
-
-        final rainyItems = [
-          ClothingItem(description: 'Rain Jacket', colorName: 'yellow'),
-          ClothingItem(description: 'Waterproof Boots', colorName: 'black'),
-          ClothingItem(description: 'Umbrella', colorName: 'blue'),
-        ];
-
-        final cloudyItems = [
-          ClothingItem(description: 'Light Sweater', colorName: 'gray'),
-          ClothingItem(description: 'Dark Jeans', colorName: 'navy'),
-          ClothingItem(description: 'Comfortable Shoes', colorName: 'brown'),
-        ];
-
-        // Save ALL clothing items first
-        for (var item in summerItems) {
-          await isar.clothingItems.put(item);
-        }
-        for (var item in rainyItems) {
-          await isar.clothingItems.put(item);
-        }
-        for (var item in cloudyItems) {
-          await isar.clothingItems.put(item);
-        }
-
-        print('DEBUG: All clothing items saved to database');
-
-        // Now create outfits
-        final summerOutfit = Outfit(
+        final outfit = Outfit(
           name: 'Summer Casual',
           isForSunny: true,
           isForGloomy: false,
           isForRainy: false,
         );
         
-        final rainyOutfit = Outfit(
+        // Save outfit first
+        await isar.outfits.put(outfit);
+        print('DEBUG: Summer outfit saved with ID: ${outfit.id}');
+        
+        // Create and save items
+        final items = [
+          ClothingItem(description: 'White T-shirt', colorName: 'white'),
+          ClothingItem(description: 'Blue Jeans', colorName: 'blue'),
+          ClothingItem(description: 'Sunglasses', colorName: 'black'),
+        ];
+        
+        for (var item in items) {
+          await isar.clothingItems.put(item);
+          outfit.clothingItems.add(item);
+          print('DEBUG: Added ${item.description} (ID: ${item.id}) to Summer outfit');
+        }
+        
+        await outfit.clothingItems.save();
+        print('DEBUG: Summer outfit relationships saved');
+      });
+
+      // Create Rainy Outfit in its own transaction
+      print('DEBUG: Creating Rainy Day outfit...');
+      await isar.writeTxn(() async {
+        final outfit = Outfit(
           name: 'Rainy Day',
           isForSunny: false,
           isForGloomy: true,
           isForRainy: true,
         );
         
-        final cloudyOutfit = Outfit(
+        // Save outfit first
+        await isar.outfits.put(outfit);
+        print('DEBUG: Rainy outfit saved with ID: ${outfit.id}');
+        
+        // Create and save items
+        final items = [
+          ClothingItem(description: 'Rain Jacket', colorName: 'yellow'),
+          ClothingItem(description: 'Waterproof Boots', colorName: 'black'),
+          ClothingItem(description: 'Umbrella', colorName: 'blue'),
+        ];
+        
+        for (var item in items) {
+          await isar.clothingItems.put(item);
+          outfit.clothingItems.add(item);
+          print('DEBUG: Added ${item.description} (ID: ${item.id}) to Rainy outfit');
+        }
+        
+        await outfit.clothingItems.save();
+        print('DEBUG: Rainy outfit relationships saved');
+      });
+
+      // Create Cloudy Outfit in its own transaction
+      print('DEBUG: Creating Cloudy Day outfit...');
+      await isar.writeTxn(() async {
+        final outfit = Outfit(
           name: 'Cloudy Day',
           isForSunny: false,
           isForGloomy: true,
           isForRainy: false,
         );
-
-        // Save outfits to get their IDs
-        await isar.outfits.put(summerOutfit);
-        await isar.outfits.put(rainyOutfit);
-        await isar.outfits.put(cloudyOutfit);
-
-        print('DEBUG: All outfits saved to database');
-
-        // Now link items to outfits
-        // Summer outfit
-        for (var item in summerItems) {
-          summerOutfit.clothingItems.add(item);
+        
+        // Save outfit first
+        await isar.outfits.put(outfit);
+        print('DEBUG: Cloudy outfit saved with ID: ${outfit.id}');
+        
+        // Create and save items
+        final items = [
+          ClothingItem(description: 'Light Sweater', colorName: 'gray'),
+          ClothingItem(description: 'Dark Jeans', colorName: 'navy'),
+          ClothingItem(description: 'Comfortable Shoes', colorName: 'brown'),
+        ];
+        
+        for (var item in items) {
+          await isar.clothingItems.put(item);
+          outfit.clothingItems.add(item);
+          print('DEBUG: Added ${item.description} (ID: ${item.id}) to Cloudy outfit');
         }
-        await summerOutfit.clothingItems.save();
-        print('DEBUG: Linked ${summerItems.length} items to Summer outfit');
-
-        // Rainy outfit  
-        for (var item in rainyItems) {
-          rainyOutfit.clothingItems.add(item);
-        }
-        await rainyOutfit.clothingItems.save();
-        print('DEBUG: Linked ${rainyItems.length} items to Rainy outfit');
-
-        // Cloudy outfit
-        for (var item in cloudyItems) {
-          cloudyOutfit.clothingItems.add(item);
-        }
-        await cloudyOutfit.clothingItems.save();
-        print('DEBUG: Linked ${cloudyItems.length} items to Cloudy outfit');
-
-        // Save outfits again AFTER relationships are established
-        await isar.outfits.put(summerOutfit);
-        await isar.outfits.put(rainyOutfit);
-        await isar.outfits.put(cloudyOutfit);
-
-        print('DEBUG: Final save of outfits with relationships complete');
+        
+        await outfit.clothingItems.save();
+        print('DEBUG: Cloudy outfit relationships saved');
       });
+
+      // Verify the data was added correctly
+      print('DEBUG: Verifying database contents...');
+      final outfitsAfter = await isar.outfits.where().findAll();
+      print('DEBUG: Number of outfits after adding samples: ${outfitsAfter.length}');
+      
+      for (var outfit in outfitsAfter) {
+        await outfit.clothingItems.load();
+        print('DEBUG: - ${outfit.name} (ID: ${outfit.id}) has ${outfit.clothingItems.length} items:');
+        for (var item in outfit.clothingItems) {
+          print('DEBUG:   * ${item.description} (${item.colorName}) [ID: ${item.id}]');
+        }
+      }
 
       // Load data into local variables
       await _loadOutfits();
