@@ -8,7 +8,7 @@ part 'clothing_item.g.dart';
 @collection
 class ClothingItem {
   // unique identifier for the item
-  Id? id;
+  Id id = 0;
 
   // description of clothing item
   final String description;
