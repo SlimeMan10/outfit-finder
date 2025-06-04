@@ -24,16 +24,8 @@ class _WeatherFilterState extends State<WeatherFilter> {
   @override
   Widget build(BuildContext context) {
     final currentWeather = context.watch<WeatherProvider>().condition;
-    
-    return Column(
-      children: [
-        _buildWeatherSelector(),
-        if (currentWeather != WeatherCondition.unknown)
-          _buildCurrentWeatherButton(currentWeather),
-        Expanded(
-          child: _buildOutfitsList(),
-        ),
-      ],
+    return Expanded(
+      child: _buildOutfitsList(),
     );
   }
 
