@@ -6,7 +6,13 @@ import 'package:outfit_finder/providers/weather_provider.dart';
 class CustomTopBar extends StatelessWidget {
   final VoidCallback onFilterPressed;
   final void Function(WeatherCondition?) onWeatherFilterSelected;
-  const CustomTopBar({super.key, required this.onFilterPressed, required this.onWeatherFilterSelected});
+  final bool isFilterActive;
+  const CustomTopBar({
+    super.key, 
+    required this.onFilterPressed, 
+    required this.onWeatherFilterSelected,
+    required this.isFilterActive,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,44 +44,27 @@ class CustomTopBar extends StatelessWidget {
               ),
               Row(
                 children: [
-                  PopupMenuButton<WeatherCondition?>(
-                    icon: const Icon(Icons.filter_list, size: 28),
-                    tooltip: 'Filter by weather',
-                    onSelected: (condition) {
-                      onWeatherFilterSelected(condition);
-                    },
-                    itemBuilder: (context) => [
-                      PopupMenuItem<WeatherCondition?>(
-                        value: null,
-                        child: Row(
-                          children: const [Icon(Icons.clear, size: 20), SizedBox(width: 8), Text('All')],
-                        ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: isFilterActive ? _getFilterActiveColor(weather) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.filter_list,
+                        size: 28,
+                        color: isFilterActive ? Colors.white : Colors.black87,
                       ),
-                      PopupMenuItem(
-                        value: WeatherCondition.sunny,
-                        child: Row(
-                          children: const [Icon(Icons.wb_sunny, size: 20), SizedBox(width: 8), Text('Sunny')],
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: WeatherCondition.rainy,
-                        child: Row(
-                          children: const [Icon(Icons.beach_access, size: 20), SizedBox(width: 8), Text('Rainy')],
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: WeatherCondition.gloomy,
-                        child: Row(
-                          children: const [Icon(Icons.cloud, size: 20), SizedBox(width: 8), Text('Gloomy')],
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: WeatherCondition.slightlyCloudy,
-                        child: Row(
-                          children: const [Icon(Icons.cloud_queue, size: 20), SizedBox(width: 8), Text('Slightly Cloudy')],
-                        ),
-                      ),
-                    ],
+                      onPressed: () {
+                        if (isFilterActive) {
+                          onWeatherFilterSelected(null); // Reset to show all
+                        } else {
+                          onWeatherFilterSelected(weather); // Filter to current weather
+                        }
+                        onFilterPressed();
+                      },
+                      tooltip: 'Filter by current weather',
+                    ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.add, size: 28),
@@ -114,6 +103,21 @@ class CustomTopBar extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Color _getFilterActiveColor(WeatherCondition condition) {
+    switch (condition) {
+      case WeatherCondition.sunny:
+        return const Color(0xFF795548); // Brown for contrast against yellow
+      case WeatherCondition.gloomy:
+        return const Color(0xFF263238); // Very dark blue-gray for contrast against gray
+      case WeatherCondition.rainy:
+        return const Color(0xFF0D47A1); // Deep blue for contrast against light blue
+      case WeatherCondition.slightlyCloudy:
+        return const Color(0xFF37474F); // Dark blue-gray for contrast against light gray
+      case WeatherCondition.unknown:
+        return Colors.black;
+    }
   }
 
   IconData _getWeatherIcon(WeatherCondition condition) {

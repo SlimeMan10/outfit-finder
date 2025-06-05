@@ -18,6 +18,7 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
   int _selectedIndex = 0;
   late Future<List<Outfit>> _outfitsFuture;
   WeatherCondition? _selectedWeatherFilter;
+  bool _isFilterActive = false;
 
   @override
   void initState() {
@@ -27,6 +28,7 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
 
   List<Outfit> _filterOutfits(List<Outfit> outfits) {
     if (_selectedWeatherFilter == null) return outfits;
+    
     switch (_selectedWeatherFilter) {
       case WeatherCondition.sunny:
         return outfits.where((o) => o.isForSunny).toList();
@@ -73,12 +75,17 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
             return Column(
               children: [
                 CustomTopBar(
-                  onFilterPressed: () {},
+                  onFilterPressed: () {
+                    setState(() {
+                      _isFilterActive = !_isFilterActive;
+                    });
+                  },
                   onWeatherFilterSelected: (condition) {
                     setState(() {
                       _selectedWeatherFilter = condition;
                     });
                   },
+                  isFilterActive: _isFilterActive,
                 ),
                 Expanded(child: WeatherFilter(outfits: filteredOutfits)),
               ],
