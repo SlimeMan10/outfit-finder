@@ -59,14 +59,20 @@ class _OutfitViewState extends State<OutfitView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Outfit'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+        leading: Semantics(
+          label: 'Back',
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context),
+          ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () => _showDeleteConfirmation(context),
+          Semantics(
+            label: 'Delete outfit',
+            child: IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () => _showDeleteConfirmation(context),
+            ),
           ),
         ],
       ),
@@ -92,26 +98,56 @@ class _OutfitViewState extends State<OutfitView> {
                 onChanged: (value) => currentOutfitNameText = value,
               ),
               const SizedBox(height: 16),
-              const Text('Weather Conditions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              // Weather Conditions Section Header with Icon
+              Row(
+                children: [
+                  Icon(Icons.wb_sunny, color: Colors.orange),
+                  SizedBox(width: 8),
+                  Text('Weather Conditions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ],
+              ),
               const SizedBox(height: 8),
               _displayWeatherIcons(),
               const SizedBox(height: 24),
-              const Text('Add Clothing Item', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              // Add Clothing Item Section Header with Icon
+              Row(
+                children: [
+                  Icon(Icons.add_circle_outline, color: Colors.green),
+                  SizedBox(width: 8),
+                  Text('Add Clothing Item', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ],
+              ),
               const SizedBox(height: 8),
               _createItemTile(),
               const SizedBox(height: 24),
-              const Text('Current Items', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              // Current Items Section Header with Icon
+              Row(
+                children: [
+                  Icon(Icons.checkroom, color: Colors.blue),
+                  SizedBox(width: 8),
+                  Text('Current Items', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ],
+              ),
               const SizedBox(height: 8),
               _displayClothingItems(),
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => _doSave(context),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Semantics(
+                  label: 'Save outfit',
+                  child: ElevatedButton.icon(
+                    icon: Icon(Icons.save),
+                    label: const Text('Save Outfit'),
+                    onPressed: () => _doSave(context),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: Colors.blueAccent,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
-                  child: const Text('Save Outfit'),
                 ),
               ),
             ],
@@ -197,27 +233,34 @@ class _OutfitViewState extends State<OutfitView> {
       'Rainy' => Icons.water_drop,
       _ => Icons.question_mark
     };
-
-    return ElevatedButton(
-      onPressed: () => setState(() {
-        switch (condition) {
-          case 'Gloomy':
-            isForGloomy = !isForGloomy;
-            break;
-          case 'Sunny':
-            isForSunny = !isForSunny;
-            break;
-          case 'Rainy':
-            isForRainy = !isForRainy;
-            break;
-        }
-      }),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? Colors.blue : Colors.grey[200],
-        foregroundColor: isSelected ? Colors.white : Colors.black,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+    Color selectedColor = switch (condition) {
+      'Gloomy' => Colors.grey,
+      'Sunny' => Colors.orange,
+      'Rainy' => Colors.blue,
+      _ => Colors.black
+    };
+    return Semantics(
+      label: '$condition weather button, ${isSelected ? "selected" : "not selected"}',
+      child: Container(
+        decoration: BoxDecoration(
+          color: isSelected ? selectedColor.withOpacity(0.15) : Colors.transparent,
+          border: Border.all(
+            color: isSelected ? selectedColor : Colors.grey.shade300,
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: IconButton(
+          icon: Icon(icon, color: isSelected ? selectedColor : Colors.grey),
+          onPressed: () {
+            setState(() {
+              if (condition == 'Rainy') isForRainy = !isForRainy;
+              if (condition == 'Gloomy') isForGloomy = !isForGloomy;
+              if (condition == 'Sunny') isForSunny = !isForSunny;
+            });
+          },
+        ),
       ),
-      child: Icon(icon),
     );
   }
 
@@ -232,7 +275,8 @@ class _OutfitViewState extends State<OutfitView> {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.blueGrey[50],
       ),
       child: GridView.builder(
         shrinkWrap: true,
@@ -246,20 +290,33 @@ class _OutfitViewState extends State<OutfitView> {
         padding: const EdgeInsets.all(8),
         itemCount: clothingItems.length,
         itemBuilder: (context, index) {
-          return Dismissible(
-            key: Key(clothingItems[index].description),
-            onDismissed: (direction) {
-              setState(() {
-                clothingItems.removeAt(index);
-              });
-            },
-            background: Container(
-              color: Colors.red,
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.only(right: 16),
-              child: const Icon(Icons.delete, color: Colors.white),
+          final item = clothingItems[index];
+          return Semantics(
+            label: 'Clothing item: ${item.description}, color: ${item.colorName}',
+            child: Dismissible(
+              key: Key(item.description),
+              onDismissed: (direction) {
+                setState(() {
+                  clothingItems.removeAt(index);
+                });
+              },
+              background: Container(
+                color: Colors.red,
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: 16),
+                child: const Icon(Icons.delete, color: Colors.white),
+              ),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ClothingItemWidget(item: item),
+                ),
+              ),
             ),
-            child: ClothingItemWidget(item: clothingItems[index]),
           );
         },
       ),
@@ -272,9 +329,9 @@ class _OutfitViewState extends State<OutfitView> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey),
+        color: Colors.green[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.green),
       ),
       child: Column(
         children: [
@@ -292,22 +349,39 @@ class _OutfitViewState extends State<OutfitView> {
             onChanged: (value) => currentItemText = value,
           ),
           const SizedBox(height: 16),
-          const Text('Select Color', style: TextStyle(fontSize: 14)),
+          Row(
+            children: [
+              Icon(Icons.palette, color: Colors.purple),
+              SizedBox(width: 8),
+              Text('Select Color', style: TextStyle(fontSize: 14)),
+            ],
+          ),
           const SizedBox(height: 8),
           _buildPalette(),
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  addItem();
-                  setState(() {
-                    currentItemText = '';
-                  });
-                }
-              },
-              child: const Text('Add Item'),
+            child: Semantics(
+              label: 'Add clothing item',
+              child: ElevatedButton.icon(
+                icon: Icon(Icons.add),
+                label: const Text('Add Item'),
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    addItem();
+                    setState(() {
+                      currentItemText = '';
+                    });
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -353,16 +427,25 @@ class _OutfitViewState extends State<OutfitView> {
   //  -color: color to create button for
   Widget _buildColorButton(Color color) {
     final isSelected = color == currentItemColor;
-    return GestureDetector(
-      onTap: () => setState(() => currentItemColor = color),
-      child: Container(
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: isSelected ? Colors.black : Colors.transparent,
-            width: 2,
+    return Semantics(
+      label: 'Color button, ${ColorHelper().getStringFromColor(color)}${isSelected ? ", selected" : ""}',
+      child: GestureDetector(
+        onTap: () => setState(() => currentItemColor = color),
+        child: Container(
+          margin: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: isSelected ? Colors.black : Colors.transparent,
+              width: 2,
+            ),
+            boxShadow: isSelected
+                ? [BoxShadow(color: Colors.black26, blurRadius: 4, spreadRadius: 1)]
+                : [],
           ),
+          width: 32,
+          height: 32,
         ),
       ),
     );
