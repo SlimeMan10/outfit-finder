@@ -90,7 +90,7 @@ class CustomTopBar extends StatelessWidget {
           Row(
             children: [
               Text(
-                lowTemp != 0 ? '$lowTemp°' : '--',
+                highTemp != 0 ? '$highTemp°' : '--',
                 style: TextStyle(fontSize: 18, color: Colors.grey[700]),
               ),
               const SizedBox(width: 6),
@@ -106,7 +106,7 @@ class CustomTopBar extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                highTemp != 0 ? '$highTemp°' : '--',
+                lowTemp != 0 ? '$lowTemp°' : '--',
                 style: TextStyle(fontSize: 18, color: Colors.grey[700]),
               ),
             ],
