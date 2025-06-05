@@ -20,6 +20,7 @@ class OutfitView extends StatefulWidget {
 
 // state of OutfitView
 class _OutfitViewState extends State<OutfitView> {
+  final _formKey = GlobalKey<FormState>();
   // Entered item description
   String currentItemText = '';
 
@@ -56,44 +57,107 @@ class _OutfitViewState extends State<OutfitView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Column(
-      children: [
-        _makeTopBar(context),
-        _displayWeatherIcons(),
-        _createItemTile(),
-        const Text('Clothing Items'),
-        _displayClothingItems(),
-        _makeSaveButton(context)
-      ],
-    ));
-  }
-
-  // makes top bar with back button and undo, redo, delete buttons
-  Widget _makeTopBar(BuildContext context) {
-    // TODO: implement undo/redo item deletions and delete item buttons
-    return AppBar(
-      actions: [
-        IconButton(
+      appBar: AppBar(
+        title: const Text('Edit Outfit'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_left),
-        )
-      ],
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () => _showDeleteConfirmation(context),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                initialValue: currentOutfitNameText,
+                decoration: const InputDecoration(
+                  labelText: 'Outfit Name',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter an outfit name';
+                  }
+                  return null;
+                },
+                onChanged: (value) => currentOutfitNameText = value,
+              ),
+              const SizedBox(height: 16),
+              const Text('Weather Conditions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              _displayWeatherIcons(),
+              const SizedBox(height: 24),
+              const Text('Add Clothing Item', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              _createItemTile(),
+              const SizedBox(height: 24),
+              const Text('Current Items', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              _displayClothingItems(),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => _doSave(context),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: const Text('Save Outfit'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _makeSaveButton(BuildContext context) {
-    return ElevatedButton(
-        onPressed: () => _doSave(context), child: const Text('Save'));
+  Future<void> _showDeleteConfirmation(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Outfit'),
+        content: const Text('Are you sure you want to delete this outfit?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      await context.read<DatabaseProvider>().deleteOutfit(widget.outfit);
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
+    }
   }
 
   // saves edited Outfit to db from state weather bools and items
   void _doSave(BuildContext context) async {
-    // creates updated outfit
+    if (!_formKey.currentState!.validate()) return;
+
     final newOutfit = Outfit(
-        name: currentOutfitNameText,
-        isForGloomy: isForGloomy,
-        isForRainy: isForRainy,
-        isForSunny: isForSunny);
+      name: currentOutfitNameText,
+      isForGloomy: isForGloomy,
+      isForRainy: isForRainy,
+      isForSunny: isForSunny,
+    );
 
     // adds new items
     // does not add duplicate items?
@@ -103,6 +167,9 @@ class _OutfitViewState extends State<OutfitView> {
 
     if (context.mounted) {
       await context.read<DatabaseProvider>().addOutfit(newOutfit);
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
     }
   }
 
@@ -111,10 +178,11 @@ class _OutfitViewState extends State<OutfitView> {
   // does NOT update outfit's weather tags until back/create button clicked
   Widget _displayWeatherIcons() {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _makeWeatherButton('Rainy', isForRainy),
         _makeWeatherButton('Gloomy', isForGloomy),
-        _makeWeatherButton('Sunny', isForSunny)
+        _makeWeatherButton('Sunny', isForSunny),
       ],
     );
   }
@@ -123,14 +191,14 @@ class _OutfitViewState extends State<OutfitView> {
   // selects/deselects weather tag
   // does NOT change outfit's tags
   Widget _makeWeatherButton(String condition, bool isSelected) {
-    Icon icon = switch (condition) {
-      'Gloomy' => const Icon(Icons.cloud),
-      'Sunny' => const Icon(Icons.sunny),
-      'Rainy' => const Icon(Icons.water_drop),
-      _ => const Icon(Icons.question_mark)
+    IconData icon = switch (condition) {
+      'Gloomy' => Icons.cloud,
+      'Sunny' => Icons.wb_sunny,
+      'Rainy' => Icons.water_drop,
+      _ => Icons.question_mark
     };
 
-    return OutlinedButton(
+    return ElevatedButton(
       onPressed: () => setState(() {
         switch (condition) {
           case 'Gloomy':
@@ -144,45 +212,104 @@ class _OutfitViewState extends State<OutfitView> {
             break;
         }
       }),
-      style: (isSelected)
-          ? OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.black))
-          : OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.white)),
-      child: icon,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSelected ? Colors.blue : Colors.grey[200],
+        foregroundColor: isSelected ? Colors.white : Colors.black,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      ),
+      child: Icon(icon),
     );
   }
 
   // displays outfit's clothing items in a rounded box
   Widget _displayClothingItems() {
-    final clothingItemWidgets =
-        clothingItems.map((item) => ClothingItemWidget(item: item)).toList();
+    if (clothingItems.isEmpty) {
+      return const Center(
+        child: Text('No items added yet'),
+      );
+    }
 
     return Container(
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(2),
-            border: Border.all(color: Colors.grey)),
-        child: GridView.count(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          children: clothingItemWidgets,
-        ));
+          childAspectRatio: 1.5,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+        ),
+        padding: const EdgeInsets.all(8),
+        itemCount: clothingItems.length,
+        itemBuilder: (context, index) {
+          return Dismissible(
+            key: Key(clothingItems[index].description),
+            onDismissed: (direction) {
+              setState(() {
+                clothingItems.removeAt(index);
+              });
+            },
+            background: Container(
+              color: Colors.red,
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.only(right: 16),
+              child: const Icon(Icons.delete, color: Colors.white),
+            ),
+            child: ClothingItemWidget(item: clothingItems[index]),
+          );
+        },
+      ),
+    );
   }
 
   // creates tile for creating a new clothing item
   // gets the item description and color
   Widget _createItemTile() {
     return Container(
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-          color: Colors.grey, borderRadius: BorderRadius.circular(2)),
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey),
+      ),
       child: Column(
         children: [
           TextFormField(
-            initialValue: 'Enter Item',
-            onChanged: (newItemText) => currentItemText = newItemText,
+            decoration: const InputDecoration(
+              labelText: 'Item Description',
+              border: OutlineInputBorder(),
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter an item description';
+              }
+              return null;
+            },
+            onChanged: (value) => currentItemText = value,
           ),
-          ElevatedButton(
-              onPressed: () => addItem(), child: const Text('Add Item')),
-          _buildPalette()
+          const SizedBox(height: 16),
+          const Text('Select Color', style: TextStyle(fontSize: 14)),
+          const SizedBox(height: 8),
+          _buildPalette(),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  addItem();
+                  setState(() {
+                    currentItemText = '';
+                  });
+                }
+              },
+              child: const Text('Add Item'),
+            ),
+          ),
         ],
       ),
     );
@@ -191,21 +318,33 @@ class _OutfitViewState extends State<OutfitView> {
   // adds new item from current description and color to items
   void addItem() {
     final colorName = ColorHelper().getStringFromColor(currentItemColor);
-    final itemToAdd =
-        ClothingItem(description: currentItemText, colorName: colorName);
-
-    clothingItems.add(itemToAdd);
+    final itemToAdd = ClothingItem(
+      description: currentItemText,
+      colorName: colorName,
+    );
+    setState(() {
+      clothingItems.add(itemToAdd);
+    });
   }
 
   // builds 8x2 grid of color buttons to select for new clothing item
   Widget _buildPalette() {
     // getting predefined set of colors for items
     final colors = ColorHelper().colorMap.values.toList();
-    final colorButtons =
-        colors.map((color) => _buildColorButton(color)).toList();
-    return GridView.count(
-      crossAxisCount: 8,
-      children: colorButtons,
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 8,
+        childAspectRatio: 1,
+        crossAxisSpacing: 4,
+        mainAxisSpacing: 4,
+      ),
+      itemCount: colors.length,
+      itemBuilder: (context, index) {
+        final color = colors[index];
+        return _buildColorButton(color);
+      },
     );
   }
 
@@ -213,13 +352,19 @@ class _OutfitViewState extends State<OutfitView> {
   // Params:
   //  -color: color to create button for
   Widget _buildColorButton(Color color) {
-    return ElevatedButton(
-        onPressed: () => currentItemColor = color,
-        child: null,
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size(50, 50),
-          shape: const CircleBorder(), // makes button circular
-          backgroundColor: color,
-        ));
+    final isSelected = color == currentItemColor;
+    return GestureDetector(
+      onTap: () => setState(() => currentItemColor = color),
+      child: Container(
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: isSelected ? Colors.black : Colors.transparent,
+            width: 2,
+          ),
+        ),
+      ),
+    );
   }
 }
