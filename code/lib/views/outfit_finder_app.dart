@@ -8,6 +8,7 @@ import 'package:outfit_finder/widgets/custom_top_bar.dart';
 import 'package:outfit_finder/weather_conditions.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:outfit_finder/views/outfit_view.dart';
 
 /// The root widget of the Outfit Finder application.
 /// Manages the database provider and overall app structure.
@@ -129,6 +130,23 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
             ],
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OutfitView(
+                outfit: Outfit(name: ''),
+              ),
+            ),
+          );
+          // Refresh the outfit list after returning from OutfitView
+          setState(() {
+            _outfitsFuture = widget.venues.getAllOutfits();
+          });
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }

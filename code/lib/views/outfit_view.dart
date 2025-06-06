@@ -223,7 +223,9 @@ class _OutfitViewState extends State<OutfitView> {
     }
 
     if (context.mounted) {
-      await context.read<DatabaseProvider>().addOutfit(newOutfit);
+      final dbProvider = context.read<DatabaseProvider>();
+      await dbProvider.addOutfit(newOutfit);
+      await dbProvider.loadData(); // Reload data to ensure UI is updated
       if (context.mounted) {
         Navigator.pop(context);
       }

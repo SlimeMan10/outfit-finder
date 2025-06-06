@@ -46,9 +46,11 @@ void main() async {
   // Create and configure the database provider
   final dbProvider = DatabaseProvider();
   
-  // Reset database and populate with sample data for testing
-  await dbProvider.clearDatabase();
-  await dbProvider.addSampleOutfits();
+  // Check if database is empty and populate with sample data if needed
+  final outfits = await dbProvider.getAllOutfits();
+  if (outfits.isEmpty) {
+    await dbProvider.addSampleOutfits();
+  }
   
   // Launch the app with configured providers
   runApp(MyApp(databaseProvider: dbProvider));
