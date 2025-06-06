@@ -30,6 +30,9 @@ class OutfitCard extends StatelessWidget {
   /// Builds the outfit card with name, weather tags, and clothing items.
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    if (loc == null) return const SizedBox.shrink(); // Return empty widget if localization is not available
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -51,7 +54,7 @@ class OutfitCard extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () => _navigateToOutfit(context, outfit),
-                  child: Text(AppLocalizations.of(context)!.edit, style: const TextStyle(fontSize: 16)),
+                  child: Text(loc.edit, style: const TextStyle(fontSize: 16)),
                   style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size(40, 30)),
                 ),
               ],
@@ -64,13 +67,13 @@ class OutfitCard extends StatelessWidget {
               future: outfit.getClothingItems(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Text(AppLocalizations.of(context)!.loadingItems);
+                  return Text(loc.loadingItems);
                 }
                 if (snapshot.hasError) {
-                  return Text('${AppLocalizations.of(context)!.error}: ${snapshot.error}');
+                  return Text('${loc.error}: ${snapshot.error}');
                 }
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Text(AppLocalizations.of(context)!.noItemsInOutfit);
+                  return Text(loc.noItemsInOutfit);
                 }
                 return Wrap(
                   spacing: 8,
@@ -98,14 +101,17 @@ class OutfitCard extends StatelessWidget {
   }
 
   Widget _buildWeatherTag(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    if (loc == null) return const SizedBox.shrink();
+
     if (outfit.isForSunny) {
-      return _weatherRow(Icons.wb_sunny, AppLocalizations.of(context)!.sunny);
+      return _weatherRow(Icons.wb_sunny, loc.sunny);
     } else if (outfit.isForRainy) {
-      return _weatherRow(Icons.beach_access, AppLocalizations.of(context)!.rainyDay);
+      return _weatherRow(Icons.beach_access, loc.rainyDay);
     } else if (outfit.isForGloomy) {
-      return _weatherRow(Icons.cloud, AppLocalizations.of(context)!.cloudyDay);
+      return _weatherRow(Icons.cloud, loc.cloudyDay);
     } else {
-      return _weatherRow(Icons.help_outline, AppLocalizations.of(context)!.any);
+      return _weatherRow(Icons.help_outline, loc.any);
     }
   }
 
@@ -128,7 +134,9 @@ class OutfitCard extends StatelessWidget {
   Widget _clothingChip(BuildContext context, dynamic item) {
     final colorHelper = ColorHelper();
     final color = colorHelper.getColorFromString(item.colorName);
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
+    if (loc == null) return const SizedBox.shrink();
+
     String localizedDescription;
     switch (item.description) {
       case 'White T-shirt':

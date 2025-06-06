@@ -10,6 +10,8 @@ import 'package:outfit_finder/providers/database_provider.dart';
 import 'package:outfit_finder/views/outfit_finder_app.dart';
 import 'package:provider/provider.dart';
 import 'package:outfit_finder/helper/isar_helper.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 /// Initializes the database and loads initial data.
 /// 
@@ -58,7 +60,24 @@ void main() async {
         // Provider for managing database operations
         ChangeNotifierProvider.value(value: dbProvider),
       ],
-      child: OutFitFinderApp(venues: dbProvider),
+      child: MaterialApp(
+        title: 'Outfit Finder',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          useMaterial3: true,
+        ),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en'), // English
+          Locale('es'), // Spanish
+        ],
+        home: OutFitFinderApp(venues: dbProvider),
+      ),
     ),
   );
 }

@@ -67,72 +67,58 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: AppLocalizations.of(context)!.appTitle,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en'), // English
-        Locale('es'), // Spanish
-      ],
-      home: Scaffold(
-        body: FutureBuilder<List<Outfit>>(
-          future: _outfitsFuture,
-          builder: (context, snapshot) {
-            // Show loading indicator while fetching outfits
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            
-            // Show error message if fetching failed
-            if (snapshot.hasError) {
-              return Center(
-                child: Text('${AppLocalizations.of(context)!.error}: ${snapshot.error}'),
-              );
-            }
-            
-            final outfits = snapshot.data ?? [];
-            
-            // Show message if no outfits are available
-            if (outfits.isEmpty) {
-              return Center(
-                child: Text(AppLocalizations.of(context)!.noItemsAvailable),
-              );
-            }
-            
-            // Filter outfits based on selected weather condition
-            final filteredOutfits = _filterOutfits(outfits);
-            
-            return Column(
-              children: [
-                CustomTopBar(
-                  onFilterPressed: () {
-                    setState(() {
-                      _isFilterActive = !_isFilterActive;
-                    });
-                  },
-                  onWeatherFilterSelected: (condition) {
-                    setState(() {
-                      _selectedWeatherFilter = condition;
-                    });
-                  },
-                  isFilterActive: _isFilterActive,
-                ),
-                Expanded(child: WeatherFilter(outfits: filteredOutfits)),
-              ],
+    final loc = AppLocalizations.of(context);
+    if (loc == null) return const SizedBox.shrink();
+
+    return Scaffold(
+      body: FutureBuilder<List<Outfit>>(
+        future: _outfitsFuture,
+        builder: (context, snapshot) {
+          // Show loading indicator while fetching outfits
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
             );
-          },
-        ),
+          }
+          
+          // Show error message if fetching failed
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('${loc.error}: ${snapshot.error}'),
+            );
+          }
+          
+          final outfits = snapshot.data ?? [];
+          
+          // Show message if no outfits are available
+          if (outfits.isEmpty) {
+            return Center(
+              child: Text(loc.noItemsAvailable),
+            );
+          }
+          
+          // Filter outfits based on selected weather condition
+          final filteredOutfits = _filterOutfits(outfits);
+          
+          return Column(
+            children: [
+              CustomTopBar(
+                onFilterPressed: () {
+                  setState(() {
+                    _isFilterActive = !_isFilterActive;
+                  });
+                },
+                onWeatherFilterSelected: (condition) {
+                  setState(() {
+                    _selectedWeatherFilter = condition;
+                  });
+                },
+                isFilterActive: _isFilterActive,
+              ),
+              Expanded(child: WeatherFilter(outfits: filteredOutfits)),
+            ],
+          );
+        },
       ),
     );
   }
