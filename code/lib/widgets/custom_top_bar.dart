@@ -15,21 +15,17 @@ import 'package:outfit_finder/models/outfit.dart';
 class CustomTopBar extends StatelessWidget {
   /// Callback function triggered when the filter button is pressed
   final VoidCallback onFilterPressed;
-  
   /// Callback function triggered when a weather filter is selected
   final void Function(WeatherCondition?) onWeatherFilterSelected;
-  
   /// Flag indicating if the weather filter is currently active
   final bool isFilterActive;
-
   /// Callback to refresh the parent view after adding an outfit
   final VoidCallback? onAddOutfit;
-
   /// Callback to refresh the parent view after any add/edit/delete
   final VoidCallback? onRefresh;
 
   /// Creates a new CustomTopBar instance.
-  /// 
+  ///
   /// Parameters:
   /// - onFilterPressed: Callback for filter button press
   /// - onWeatherFilterSelected: Callback for weather filter selection
@@ -37,8 +33,8 @@ class CustomTopBar extends StatelessWidget {
   /// - onAddOutfit: Callback to refresh after adding an outfit
   /// - onRefresh: Callback to refresh after any add/edit/delete
   const CustomTopBar({
-    super.key, 
-    required this.onFilterPressed, 
+    super.key,
+    required this.onFilterPressed,
     required this.onWeatherFilterSelected,
     required this.isFilterActive,
     this.onAddOutfit,
@@ -53,11 +49,10 @@ class CustomTopBar extends StatelessWidget {
     final lowTemp = context.watch<WeatherProvider>().lowTempFahrenheit;
     final highTemp = context.watch<WeatherProvider>().highTempFahrenheit;
     final loc = AppLocalizations.of(context);
-    if (loc == null) return const SizedBox.shrink();
     
     final textColor = _getTextColor(weather);
     final borderColor = _getBorderColor(weather);
-
+    
     return Container(
       padding: const EdgeInsets.only(top: 48, left: 16, right: 16, bottom: 8),
       decoration: BoxDecoration(
@@ -110,7 +105,7 @@ class CustomTopBar extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Semantics(
-                      label: loc.weatherConditions,
+                      label: loc?.weatherConditions ?? 'Weather filter',
                       button: true,
                       child: IconButton(
                         icon: Icon(
@@ -126,12 +121,12 @@ class CustomTopBar extends StatelessWidget {
                           }
                           onFilterPressed();
                         },
-                        tooltip: loc.weatherConditions,
+                        tooltip: loc?.weatherConditions ?? 'Weather filter',
                       ),
                     ),
                   ),
                   Semantics(
-                    label: loc.addClothingItem,
+                    label: loc?.addNewOutfit,
                     button: true,
                     child: IconButton(
                       icon: Icon(
@@ -147,7 +142,7 @@ class CustomTopBar extends StatelessWidget {
                         );
                         if (onAddOutfit != null) onAddOutfit!();
                       },
-                      tooltip: loc.addClothingItem,
+                      tooltip: loc?.addNewOutfit,
                     ),
                   ),
                 ],
@@ -193,8 +188,7 @@ class CustomTopBar extends StatelessWidget {
 
   void _showLanguageDialog(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    if (loc == null) return;
-
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -227,7 +221,7 @@ class CustomTopBar extends StatelessWidget {
   }
 
   /// Gets the color for the active filter button based on weather condition.
-  /// 
+  ///
   /// Parameters:
   /// - condition: The current weather condition
   /// Returns: A color that provides good contrast against the weather gradient
@@ -247,7 +241,7 @@ class CustomTopBar extends StatelessWidget {
   }
 
   /// Gets the appropriate weather icon for the current condition.
-  /// 
+  ///
   /// Parameters:
   /// - condition: The current weather condition
   /// Returns: An IconData representing the weather condition
@@ -267,7 +261,7 @@ class CustomTopBar extends StatelessWidget {
   }
 
   /// Gets the gradient background for the top bar based on weather condition.
-  /// 
+  ///
   /// Parameters:
   /// - condition: The current weather condition
   /// Returns: A LinearGradient appropriate for the weather condition
@@ -307,27 +301,20 @@ class CustomTopBar extends StatelessWidget {
   }
 
   String _localizedWeatherLabel(BuildContext context, WeatherCondition condition) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
+    
+    // Using your existing localization keys with fallbacks
     switch (condition) {
       case WeatherCondition.sunny:
-        return loc.sunny;
+        return loc?.sunny ?? 'Sunny';
       case WeatherCondition.gloomy:
-        return loc.cloudyDay;
+        return loc?.cloudyDay ?? 'Cloudy';
       case WeatherCondition.rainy:
-        return loc.rainyDay;
+        return loc?.rainyDay ?? 'Rainy';
       case WeatherCondition.slightlyCloudy:
-        return loc.partlyCloudy;
+        return loc?.partlyCloudy ?? 'Partly Cloudy';
       case WeatherCondition.unknown:
-        return loc.any;
-    }
-  }
-
-  bool _isDarkBackground(WeatherCondition condition) {
-    switch (condition) {
-      case WeatherCondition.rainy:
-        return true;
-      default:
-        return false;
+        return loc?.any ?? 'Any';
     }
   }
 
@@ -360,4 +347,4 @@ class CustomTopBar extends StatelessWidget {
         return const Color(0xFF424242); // Darker gray for neutral background
     }
   }
-} 
+}

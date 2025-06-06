@@ -47,6 +47,10 @@ class _OutfitViewState extends State<OutfitView> {
   /// List of clothing items in the outfit
   List<ClothingItem> clothingItems = [];
 
+  /// Undo/redo stacks for clothing items
+  final List<ClothingItem> _undoStack = [];
+  final List<ClothingItem> _redoStack = [];
+
   /// Flag indicating if outfit is suitable for rainy weather
   bool isForRainy = false;
 
@@ -96,20 +100,42 @@ class _OutfitViewState extends State<OutfitView> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: Semantics(
-          label: 'Back',
+          label: 'Go back to all outfits',
           child: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () => Navigator.pop(context),
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.undo, color: Colors.black),
-            onPressed: () {}, // Add undo functionality
+          Semantics(
+            label: loc.undo,
+            button: true,
+            child: IconButton(
+              icon: Icon(Icons.undo, color: clothingItems.isNotEmpty ? Colors.black : Colors.grey),
+              onPressed: clothingItems.isNotEmpty
+                  ? () {
+                      setState(() {
+                        final removed = clothingItems.removeLast();
+                        _undoStack.add(removed);
+                      });
+                    }
+                  : null,
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.redo, color: Colors.black),
-            onPressed: () {}, // Add redo functionality
+          Semantics(
+            label: loc.redo,
+            button: true,
+            child: IconButton(
+              icon: Icon(Icons.redo, color: _undoStack.isNotEmpty ? Colors.black : Colors.grey),
+              onPressed: _undoStack.isNotEmpty
+                  ? () {
+                      setState(() {
+                        final restored = _undoStack.removeLast();
+                        clothingItems.add(restored);
+                      });
+                    }
+                  : null,
+            ),
           ),
           if (widget.outfit.name.isNotEmpty) // Only show delete for existing outfits
             Semantics(
@@ -326,8 +352,14 @@ class _OutfitViewState extends State<OutfitView> {
       _ => Icons.question_mark
     };
     
+    String label;
+    if (condition == 'Sunny2') {
+      label = 'Very sunny weather button, ${isSelected ? "selected" : "not selected"}';
+    } else {
+      label = '$condition weather button, ${isSelected ? "selected" : "not selected"}';
+    }
     return Semantics(
-      label: '$condition weather button, ${isSelected ? "selected" : "not selected"}',
+      label: label,
       child: GestureDetector(
         onTap: () {
           setState(() {
@@ -472,6 +504,7 @@ class _OutfitViewState extends State<OutfitView> {
       clothingItems.add(itemToAdd);
       currentItemText = '';
       _itemController.clear();
+      _undoStack.clear(); // Clear redo stack on new action
     });
   }
 

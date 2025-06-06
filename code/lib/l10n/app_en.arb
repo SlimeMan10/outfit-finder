@@ -33,6 +33,17 @@
   "noItemsInOutfit": "No items in this outfit",
   "partlyCloudy": "Partly Cloudy",
   "appTitle": "Outfit Finder",
+  "addNewOutfit": "Add new outfit",
+  "changeLanguage": "Change Language",
+  "selectLanguage": "Select Language",
+  "undo": "Undo",
+  "redo": "Redo",
+  "@undo": {
+    "description": "Label for the undo button"
+  },
+  "@redo": {
+    "description": "Label for the redo button"
+  },
   "@appTitle": {
     "description": "The title of the application"
   },
@@ -89,5 +100,8 @@
   },
   "@addItem": {
     "description": "Label for add item button"
+  },
+  "@addNewOutfit": {
+    "description": "Label for the add new outfit button"
   }
 }
