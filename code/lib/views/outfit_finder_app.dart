@@ -9,17 +9,18 @@ import 'package:outfit_finder/weather_conditions.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:outfit_finder/views/outfit_view.dart';
+import 'package:provider/provider.dart';
 
 /// The root widget of the Outfit Finder application.
 /// Manages the database provider and overall app structure.
 class OutFitFinderApp extends StatefulWidget {
-  /// Database provider for managing outfits and clothing items
+  /// The database provider instance
   final DatabaseProvider venues;
 
   /// Creates a new OutFitFinderApp instance.
   /// 
   /// Parameters:
-  /// - venues: The database provider for managing outfits
+  /// - venues: The database provider instance
   const OutFitFinderApp({super.key, required this.venues});
 
   @override
@@ -60,93 +61,85 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
   /// - outfits: The list of outfits to filter
   /// Returns: A filtered list of outfits matching the weather condition
   List<Outfit> _filterOutfits(List<Outfit> outfits) {
-    if (_selectedWeatherFilter == null) return outfits;
-    
-    switch (_selectedWeatherFilter) {
-      case WeatherCondition.sunny:
-        return outfits.where((o) => o.isForSunny).toList();
-      case WeatherCondition.gloomy:
-        return outfits.where((o) => o.isForGloomy).toList();
-      case WeatherCondition.rainy:
-        return outfits.where((o) => o.isForRainy).toList();
-      case WeatherCondition.slightlyCloudy:
-        return outfits; // Show all outfits for slightly cloudy weather
-      default:
-        return outfits;
+    if (_selectedWeatherFilter == null) {
+      return outfits;
     }
+
+    return outfits.where((outfit) {
+      switch (_selectedWeatherFilter) {
+        case WeatherCondition.sunny:
+          return outfit.isForSunny;
+        case WeatherCondition.rainy:
+          return outfit.isForRainy;
+        case WeatherCondition.gloomy:
+          return outfit.isForGloomy;
+        default:
+          return true;
+      }
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    if (loc == null) return const SizedBox.shrink();
-
-    return Scaffold(
-      body: FutureBuilder<List<Outfit>>(
-        future: _outfitsFuture,
-        builder: (context, snapshot) {
-          // Show loading indicator while fetching outfits
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          
-          // Show error message if fetching failed
-          if (snapshot.hasError) {
-            return Center(
-              child: Text('${loc.error}: ${snapshot.error}'),
-            );
-          }
-          
-          final outfits = snapshot.data ?? [];
-          
-          // Show message if no outfits are available
-          if (outfits.isEmpty) {
-            return Center(
-              child: Text(loc.noItemsAvailable),
-            );
-          }
-          
-          // Filter outfits based on selected weather condition
-          final filteredOutfits = _filterOutfits(outfits);
-          
-          return Column(
-            children: [
-              CustomTopBar(
-                onFilterPressed: () {
-                  setState(() {
-                    _isFilterActive = !_isFilterActive;
-                  });
-                },
-                onWeatherFilterSelected: (condition) {
-                  setState(() {
-                    _selectedWeatherFilter = condition;
-                  });
-                },
-                isFilterActive: _isFilterActive,
-              ),
-              Expanded(child: WeatherFilter(outfits: filteredOutfits)),
-            ],
-          );
-        },
+    return MaterialApp(
+      title: 'Outfit Finder',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => OutfitView(
-                outfit: Outfit(name: ''),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(
+        body: FutureBuilder<List<Outfit>>(
+          future: _outfitsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text('No outfits found'));
+            }
+
+            final filteredOutfits = _filterOutfits(snapshot.data!);
+            return Column(
+              children: [
+                CustomTopBar(
+                  onFilterPressed: () {
+                    setState(() {
+                      _isFilterActive = !_isFilterActive;
+                    });
+                  },
+                  onWeatherFilterSelected: (condition) {
+                    setState(() {
+                      _selectedWeatherFilter = condition;
+                    });
+                  },
+                  isFilterActive: _isFilterActive,
+                ),
+                Expanded(child: WeatherFilter(outfits: filteredOutfits)),
+              ],
+            );
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            print('Main App: Add button pressed');
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => OutfitView(outfit: Outfit(name: '')),
               ),
-            ),
-          );
-          // Refresh the outfit list after returning from OutfitView
-          setState(() {
-            _outfitsFuture = widget.venues.getAllOutfits();
-          });
-        },
-        child: const Icon(Icons.add),
+            ).then((_) {
+              print('Main App: Refreshing outfit list');
+              setState(() {
+                _outfitsFuture = widget.venues.getAllOutfits();
+              });
+            });
+          },
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }

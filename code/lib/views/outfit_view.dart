@@ -8,6 +8,7 @@ import 'package:outfit_finder/helper/color_helper.dart';
 import 'package:outfit_finder/providers/database_provider.dart';
 import 'package:outfit_finder/widgets/clothing_item_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 /// Widget for editing or creating an outfit.
 class OutfitView extends StatefulWidget {
@@ -21,7 +22,10 @@ class OutfitView extends StatefulWidget {
   const OutfitView({super.key, required this.outfit});
 
   @override
-  State<OutfitView> createState() => _OutfitViewState();
+  State<OutfitView> createState() {
+    print('OutfitView: Creating state');
+    return _OutfitViewState();
+  }
 }
 
 /// State class for the OutfitView widget.
@@ -54,6 +58,7 @@ class _OutfitViewState extends State<OutfitView> {
   /// Initializes the outfit view state with values from the provided outfit
   @override
   void initState() {
+    print('OutfitView: Initializing state');
     super.initState();
     currentOutfitNameText = widget.outfit.name;
     clothingItems = widget.outfit.clothingItems.toList();
@@ -65,9 +70,12 @@ class _OutfitViewState extends State<OutfitView> {
   /// Builds the outfit editing interface
   @override
   Widget build(BuildContext context) {
+    print('OutfitView: Building widget');
+    final loc = AppLocalizations.of(context);
+    if (loc == null) return const SizedBox.shrink();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Outfit'),
+        title: Text(widget.outfit.name.isEmpty ? 'New Outfit' : 'Edit Outfit'),
         leading: Semantics(
           label: 'Back',
           child: IconButton(
@@ -76,13 +84,14 @@ class _OutfitViewState extends State<OutfitView> {
           ),
         ),
         actions: [
-          Semantics(
-            label: 'Delete outfit',
-            child: IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () => _showDeleteConfirmation(context),
+          if (widget.outfit.name.isNotEmpty) // Only show delete for existing outfits
+            Semantics(
+              label: 'Delete outfit',
+              child: IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () => _showDeleteConfirmation(context),
+              ),
             ),
-          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -106,6 +115,7 @@ class _OutfitViewState extends State<OutfitView> {
                   return null;
                 },
                 onChanged: (value) => currentOutfitNameText = value,
+                autofocus: widget.outfit.name.isEmpty, // Focus on name field for new outfits
               ),
               const SizedBox(height: 16),
               
