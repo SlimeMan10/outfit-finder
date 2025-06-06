@@ -43,6 +43,9 @@ class CustomTopBar extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     if (loc == null) return const SizedBox.shrink();
     
+    final textColor = _getTextColor(weather);
+    final borderColor = _getBorderColor(weather);
+
     return Container(
       padding: const EdgeInsets.only(top: 48, left: 16, right: 16, bottom: 8),
       decoration: BoxDecoration(
@@ -60,12 +63,17 @@ class CustomTopBar extends StatelessWidget {
                   Icon(
                     _getWeatherIcon(weather),
                     size: 32,
+                    color: textColor,
                     semanticLabel: _localizedWeatherLabel(context, weather),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     _localizedWeatherLabel(context, weather),
-                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
                   ),
                 ],
               ),
@@ -76,7 +84,10 @@ class CustomTopBar extends StatelessWidget {
                     label: 'Change Language',
                     button: true,
                     child: IconButton(
-                      icon: const Icon(Icons.language),
+                      icon: Icon(
+                        Icons.language,
+                        color: textColor,
+                      ),
                       onPressed: () => _showLanguageDialog(context),
                       tooltip: 'Change Language',
                     ),
@@ -93,7 +104,7 @@ class CustomTopBar extends StatelessWidget {
                         icon: Icon(
                           Icons.filter_list,
                           size: 28,
-                          color: isFilterActive ? Colors.white : Colors.black87,
+                          color: isFilterActive ? Colors.white : textColor,
                         ),
                         onPressed: () {
                           if (isFilterActive) {
@@ -111,9 +122,10 @@ class CustomTopBar extends StatelessWidget {
                     label: loc.addClothingItem,
                     button: true,
                     child: IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.add,
                         size: 28,
+                        color: textColor,
                       ),
                       onPressed: () {},
                       tooltip: loc.addClothingItem,
@@ -128,7 +140,10 @@ class CustomTopBar extends StatelessWidget {
             children: [
               Text(
                 highTemp != 0 ? '$highTemp°' : '--',
-                style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: textColor,
+                ),
               ),
               const SizedBox(width: 6),
               Container(
@@ -139,12 +154,16 @@ class CustomTopBar extends StatelessWidget {
                   gradient: const LinearGradient(
                     colors: [Color(0xFFB2EBF2), Color(0xFFFFAB91)],
                   ),
+                  border: Border.all(color: borderColor, width: 1),
                 ),
               ),
               const SizedBox(width: 6),
               Text(
                 lowTemp != 0 ? '$lowTemp°' : '--',
-                style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: textColor,
+                ),
               ),
             ],
           ),
@@ -281,6 +300,45 @@ class CustomTopBar extends StatelessWidget {
         return loc.partlyCloudy;
       case WeatherCondition.unknown:
         return loc.any;
+    }
+  }
+
+  bool _isDarkBackground(WeatherCondition condition) {
+    switch (condition) {
+      case WeatherCondition.rainy:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  Color _getTextColor(WeatherCondition condition) {
+    switch (condition) {
+      case WeatherCondition.sunny:
+        return const Color(0xFF1A1A1A); // Dark gray for yellow background
+      case WeatherCondition.gloomy:
+        return const Color(0xFF1A1A1A); // Dark gray for gray background
+      case WeatherCondition.rainy:
+        return Colors.white; // White for blue background
+      case WeatherCondition.slightlyCloudy:
+        return const Color(0xFF1A1A1A); // Dark gray for light gray background
+      case WeatherCondition.unknown:
+        return const Color(0xFF1A1A1A); // Dark gray for neutral background
+    }
+  }
+
+  Color _getBorderColor(WeatherCondition condition) {
+    switch (condition) {
+      case WeatherCondition.sunny:
+        return const Color(0xFF424242); // Darker gray for yellow background
+      case WeatherCondition.gloomy:
+        return const Color(0xFF424242); // Darker gray for gray background
+      case WeatherCondition.rainy:
+        return Colors.white; // White for blue background
+      case WeatherCondition.slightlyCloudy:
+        return const Color(0xFF424242); // Darker gray for light gray background
+      case WeatherCondition.unknown:
+        return const Color(0xFF424242); // Darker gray for neutral background
     }
   }
 } 
