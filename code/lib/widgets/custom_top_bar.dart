@@ -182,9 +182,9 @@ class CustomTopBar extends StatelessWidget {
           Row(
             children: [
               Semantics(
-                label: "Today's high temperature: ${highTemp != 0 ? '$highTemp°' : '--'}",
+                label: "Today's low temperature: ${lowTemp != 0 ? '$lowTemp°' : '--'}",
                 child: Text(
-                  highTemp != 0 ? '$highTemp°' : '--',
+                  lowTemp != 0 ? '$lowTemp°' : '--',
                   style: TextStyle(
                     fontSize: 18,
                     color: textColor,
@@ -205,9 +205,9 @@ class CustomTopBar extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Semantics(
-                label: "Today's low temperature: ${lowTemp != 0 ? '$lowTemp°' : '--'}",
+                label: "Today's high temperature: ${highTemp != 0 ? '$highTemp°' : '--'}",
                 child: Text(
-                  lowTemp != 0 ? '$lowTemp°' : '--',
+                  highTemp != 0 ? '$highTemp°' : '--',
                   style: TextStyle(
                     fontSize: 18,
                     color: textColor,
