@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:outfit_finder/weather_conditions.dart';
 import 'package:outfit_finder/providers/weather_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 /// A custom top bar widget that displays weather information and controls.
 class CustomTopBar extends StatelessWidget {
@@ -34,6 +35,7 @@ class CustomTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     // Get current weather information from provider
     final weather = context.watch<WeatherProvider>().condition;
+    final temp = context.watch<WeatherProvider>().tempInFahrenheit;
     final lowTemp = context.watch<WeatherProvider>().lowTempFahrenheit;
     final highTemp = context.watch<WeatherProvider>().highTempFahrenheit;
     
@@ -45,186 +47,90 @@ class CustomTopBar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildWeatherConditionRow(weather),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    _getWeatherIcon(weather),
+                    size: 32,
+                    semanticLabel: _localizedWeatherLabel(context, weather),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    _localizedWeatherLabel(context, weather),
+                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: isFilterActive ? _getFilterActiveColor(weather) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.filter_list,
+                        size: 28,
+                        color: isFilterActive ? Colors.white : Colors.black87,
+                        semanticLabel: AppLocalizations.of(context)!.weatherConditions,
+                      ),
+                      onPressed: () {
+                        if (isFilterActive) {
+                          onWeatherFilterSelected(null); // Reset to show all
+                        } else {
+                          onWeatherFilterSelected(weather); // Filter to current weather
+                        }
+                        onFilterPressed();
+                      },
+                      tooltip: AppLocalizations.of(context)!.weatherConditions,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.add,
+                      size: 28,
+                      semanticLabel: AppLocalizations.of(context)!.addClothingItem,
+                    ),
+                    onPressed: () {},
+                    tooltip: AppLocalizations.of(context)!.addClothingItem,
+                  ),
+                ],
+              )
+            ],
+          ),
           const SizedBox(height: 8),
-          _buildTemperatureDisplay(weather, highTemp, lowTemp),
+          Row(
+            children: [
+              Text(
+                highTemp != 0 ? '$highTemp°' : '--',
+                style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+              ),
+              const SizedBox(width: 6),
+              Container(
+                width: 40,
+                height: 6,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(3),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFB2EBF2), Color(0xFFFFAB91)],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                lowTemp != 0 ? '$lowTemp°' : '--',
+                style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+              ),
+            ],
+          ),
         ],
       ),
     );
-  }
-
-  /// Builds the row containing weather condition and filter controls.
-  /// 
-  /// Parameters:
-  /// - weather: Current weather condition
-  /// Returns: A row widget with weather icon, condition text, and filter controls
-  Widget _buildWeatherConditionRow(WeatherCondition weather) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildWeatherConditionDisplay(weather),
-        _buildFilterControls(weather),
-      ],
-    );
-  }
-
-  /// Builds the weather condition display with icon and text.
-  /// 
-  /// Parameters:
-  /// - weather: Current weather condition
-  /// Returns: A row widget with weather icon and condition text
-  Widget _buildWeatherConditionDisplay(WeatherCondition weather) {
-    return Row(
-      children: [
-        Icon(_getWeatherIcon(weather), size: 32),
-        const SizedBox(width: 8),
-        Text(
-          weather == WeatherCondition.unknown ? 'Any' : weather.toString(),
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-        ),
-      ],
-    );
-  }
-
-  /// Builds the filter and add buttons.
-  /// 
-  /// Parameters:
-  /// - weather: Current weather condition
-  /// Returns: A row widget containing filter and add buttons
-  Widget _buildFilterControls(WeatherCondition weather) {
-    return Row(
-      children: [
-        _buildFilterButton(weather),
-        IconButton(
-          icon: const Icon(Icons.add, size: 28),
-          onPressed: () {},
-          tooltip: 'Add outfit',
-        ),
-      ],
-    );
-  }
-
-  /// Builds the filter button with appropriate styling.
-  /// 
-  /// Parameters:
-  /// - weather: Current weather condition
-  /// Returns: A container widget containing the filter button
-  Widget _buildFilterButton(WeatherCondition weather) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isFilterActive ? _getFilterActiveColor(weather) : Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: IconButton(
-        icon: Icon(
-          Icons.filter_list,
-          size: 28,
-          color: isFilterActive ? Colors.white : Colors.black87,
-        ),
-        onPressed: () {
-          if (isFilterActive) {
-            onWeatherFilterSelected(null); // Reset to show all
-          } else {
-            onWeatherFilterSelected(weather); // Filter to current weather
-          }
-          onFilterPressed();
-        },
-        tooltip: 'Filter by current weather',
-      ),
-    );
-  }
-
-  /// Builds the temperature display with high and low temperatures.
-  /// 
-  /// Parameters:
-  /// - weather: Current weather condition
-  /// - highTemp: High temperature in Fahrenheit
-  /// - lowTemp: Low temperature in Fahrenheit
-  /// Returns: A container widget displaying temperature range
-  Widget _buildTemperatureDisplay(WeatherCondition weather, int highTemp, int lowTemp) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: _getContrastingBorderColor(weather),
-          width: 2,
-        ),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildTemperatureText(weather, highTemp, true),
-          const SizedBox(width: 6),
-          _buildTemperatureGradient(),
-          const SizedBox(width: 6),
-          _buildTemperatureText(weather, lowTemp, false),
-        ],
-      ),
-    );
-  }
-
-  /// Builds the temperature text with appropriate styling.
-  /// 
-  /// Parameters:
-  /// - weather: Current weather condition
-  /// - temperature: Temperature value in Fahrenheit
-  /// - isHigh: Whether this is the high temperature
-  /// Returns: A text widget displaying the temperature
-  Widget _buildTemperatureText(WeatherCondition weather, int temperature, bool isHigh) {
-    return Text(
-      temperature != 0 ? '$temperature°' : '--',
-      style: TextStyle(
-        fontSize: 18,
-        color: _getContrastingTextColor(weather),
-        fontWeight: FontWeight.bold,
-      ),
-    );
-  }
-
-  /// Builds the temperature gradient bar.
-  /// 
-  /// Returns: A container widget displaying the temperature gradient
-  Widget _buildTemperatureGradient() {
-    return Container(
-      width: 40,
-      height: 6,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(3),
-        gradient: const LinearGradient(
-          colors: [Color(0xFFB2EBF2), Color(0xFFFFAB91)],
-        ),
-      ),
-    );
-  }
-
-  /// Gets a contrasting border color based on the weather condition.
-  /// The color is chosen to meet WCAG contrast requirements against the background.
-  /// 
-  /// Parameters:
-  /// - condition: The current weather condition
-  /// Returns: A color that provides sufficient contrast against the background
-  Color _getContrastingBorderColor(WeatherCondition condition) {
-    final gradient = _getWeatherGradient(condition);
-    final baseColor = gradient.colors.first;
-    
-    // Calculate a contrasting color based on the background
-    return HSLColor.fromColor(baseColor).withLightness(0.2).toColor();
-  }
-
-  /// Gets a contrasting text color based on the weather condition.
-  /// The color is chosen to meet WCAG contrast requirements against the background.
-  /// 
-  /// Parameters:
-  /// - condition: The current weather condition
-  /// Returns: A color that provides sufficient contrast for text against the background
-  Color _getContrastingTextColor(WeatherCondition condition) {
-    final gradient = _getWeatherGradient(condition);
-    final baseColor = gradient.colors.first;
-    
-    // Calculate a contrasting color based on the background
-    return HSLColor.fromColor(baseColor).withLightness(0.1).toColor();
   }
 
   /// Gets the color for the active filter button based on weather condition.
@@ -233,11 +139,18 @@ class CustomTopBar extends StatelessWidget {
   /// - condition: The current weather condition
   /// Returns: A color that provides good contrast against the weather gradient
   Color _getFilterActiveColor(WeatherCondition condition) {
-    final gradient = _getWeatherGradient(condition);
-    final baseColor = gradient.colors.first;
-    
-    // Calculate a contrasting color based on the background
-    return HSLColor.fromColor(baseColor).withLightness(0.3).toColor();
+    switch (condition) {
+      case WeatherCondition.sunny:
+        return const Color(0xFF795548); // Brown for contrast against yellow
+      case WeatherCondition.gloomy:
+        return const Color(0xFF263238); // Very dark blue-gray for contrast against gray
+      case WeatherCondition.rainy:
+        return const Color(0xFF0D47A1); // Deep blue for contrast against light blue
+      case WeatherCondition.slightlyCloudy:
+        return const Color(0xFF37474F); // Dark blue-gray for contrast against light gray
+      case WeatherCondition.unknown:
+        return Colors.black;
+    }
   }
 
   /// Gets the appropriate weather icon for the current condition.
@@ -297,6 +210,22 @@ class CustomTopBar extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         );
+    }
+  }
+
+  String _localizedWeatherLabel(BuildContext context, WeatherCondition condition) {
+    final loc = AppLocalizations.of(context)!;
+    switch (condition) {
+      case WeatherCondition.sunny:
+        return loc.sunny;
+      case WeatherCondition.gloomy:
+        return loc.cloudyDay;
+      case WeatherCondition.rainy:
+        return loc.rainyDay;
+      case WeatherCondition.slightlyCloudy:
+        return loc.partlyCloudy;
+      case WeatherCondition.unknown:
+        return loc.any;
     }
   }
 } 

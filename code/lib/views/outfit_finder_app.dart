@@ -6,6 +6,8 @@ import 'package:outfit_finder/components/weather_filter.dart';
 import 'package:outfit_finder/models/outfit.dart';
 import 'package:outfit_finder/widgets/custom_top_bar.dart';
 import 'package:outfit_finder/weather_conditions.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 /// The root widget of the Outfit Finder application.
 /// Manages the database provider and overall app structure.
@@ -66,11 +68,21 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Outfit Finder',
+      title: AppLocalizations.of(context)!.appTitle,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'), // English
+        Locale('es'), // Spanish
+      ],
       home: Scaffold(
         body: FutureBuilder<List<Outfit>>(
           future: _outfitsFuture,
@@ -85,7 +97,7 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
             // Show error message if fetching failed
             if (snapshot.hasError) {
               return Center(
-                child: Text('Error: ${snapshot.error}'),
+                child: Text('${AppLocalizations.of(context)!.error}: ${snapshot.error}'),
               );
             }
             
@@ -93,8 +105,8 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
             
             // Show message if no outfits are available
             if (outfits.isEmpty) {
-              return const Center(
-                child: Text('No outfits available'),
+              return Center(
+                child: Text(AppLocalizations.of(context)!.noItemsAvailable),
               );
             }
             

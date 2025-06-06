@@ -9,6 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
   geolocator: ^11.0.0
   http: ^1.2.1
   json_annotation: ^4.8.1
@@ -35,3 +38,4 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
