@@ -1,49 +1,41 @@
 # Project Reflection
 
 ## Course Topics Applied
-We applied a variety of CSE 340 topics in our project, including:
-- **State Management:** Used the Provider pattern for reactive UI updates and clean separation of concerns.
-- **Data Persistence:** Integrated the Isar database for local, persistent storage of outfits and clothing items.
-- **API Integration:** Queried the National Weather Service API to fetch real-time weather data.
-- **Sensor Access:** Used the device's GPS sensor to provide location-based weather and outfit suggestions.
-- **Undo/Redo:** Implemented undo and redo functionality for outfit deletion and management.
-- **Internationalization:** Added support for multiple languages (English and Spanish planned).
+We used what we learned from the Journal and Weather assignments to make this app. We refactored code from those assignments to suit the needs of our app, utilizing views, providers, models, and adding helpers to support the models and providers.
 
 ### Accessibility Implementation
-- Used contrast checkers and accessibility tools to evaluate and improve color contrast and UI clarity.
-- Added form labels and UI signifiers to aid users with navigation and screen readers.
-- Addressed feedback from accessibility audits, including plans to add a border around the temperature box for better contrast.
+Our accessibility work focused on text-to-speech and color contrast. While we initially failed in some areas (as our audit suggested), we addressed these issues. The main improvement was adding a bar around the high and low temperature display to provide better contrast against our changing app bar.
 
 ### Technical Implementation
-- Used IsarLinks to manage relationships between outfits and clothing items in the database.
-- Employed transaction-based operations for data consistency.
-- Utilized Material Design 3 for a modern, accessible UI.
-- Periodic weather updates and robust error handling for a smooth user experience.
+Our main technical features came from the weather and data persistence components. We had to refactor the weather logic to get the high and low temperatures for display. In the database, we originally used a Color type in the clothing item class, but Isar does not recognize this, so we changed it to a string and created a helper to convert between strings and colors.
 
 ## Resources and Acknowledgments
-- **External Libraries:** Isar, Provider, GeoLocator, HTTP
-- **Course Resources:** FoodFinder, Journal, Drawing assignment starter code
-- **Accessibility Tools:** Contrast checkers, accessibility inspector, screen reader
+- [IsarLinks documentation](https://pub.dev/documentation/isar/latest/isar/IsarLinks-class.html)
+- Most of our resources came from previous assignments
+
+### External Resources
+- Flutter/Dart documentation
+- Isar documentation
+
+### Course Resources
+- Journal assignment
+- Food Finder assignment
+
+### AI Tools
+We used ChatGPT when we were stuck on a database issue where only one wardrobe and item would display at a time. The issue was that we accidentally set the ID to 0 upon initialization, so only the last item would be retrieved. We also used AI for help when Flutter would not run due to changes in pubspec, which required us to update our settings in Android Studio.
 
 ## Learning Outcomes
-- Gained hands-on experience with state management, persistent storage, and API integration in Flutter.
-- Deepened understanding of accessibility best practices and the importance of usability testing.
-- Learned to iteratively refine the app based on user and audit feedback.
+This project helped us learn how to work in a team environment and improve our use of Git and Jira to work efficiently and stay on top of tasks.
 
 ## Design Evolution
-- The original concept focused on basic outfit storage and weather-based suggestions.
-- Through user testing and audits, we added undo/redo, improved accessibility, and enhanced UI clarity.
-- Addressed technical challenges with IsarLinks and state management for complex data relationships.
+The overall design stayed mostly the same, but we changed some icons and widgets to improve contrast, such as the widget for high and low temperatures.
 
 ## Refinement
-To improve usability, we implemented **undo & redo** for outfit management, added form labels, and included UI signifiers for navigation. We also addressed accessibility audit feedback, such as improving color contrast and planning a border around the temperature box.
-
-**Main challenge:** Handling multiple Isar databases and ensuring all clothing items loaded correctly for each outfit. We used IsarLinks to manage these relationships and maintain state consistency.
 
 ## Future Work
-Making it so that you can reuse articles of clothing (like a search bar that filters by word) so that if you are already adding the same thing we can reduce the number of items in Isar
+Making it so that you can reuse articles of clothing (like a search bar that filters by word) so that if you are already adding the same thing we can reduce the number of items in Isar.
 
-Then making it so that users can add their own colors
+Then making it so that users can add their own colors into the app.
 
 ## CSE 340 Reflection
-The most valuable takeaway from CSE 340 was learning how to design and build accessible, user-centered applications. Usability and accessibility are critical for real-world impact. Advice for future students: start early, test with real users, and always consider accessibility from the beginning.
+Learn how to work with Git and establish a workflow, as that will make life a lot easier.
