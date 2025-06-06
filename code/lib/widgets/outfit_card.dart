@@ -11,7 +11,8 @@ class OutfitCard extends StatelessWidget {
   final WeatherCondition currentWeather;
 
   // constructs an OutfitCard with given outfit
-  const OutfitCard({super.key, required this.outfit, required this.currentWeather});
+  const OutfitCard(
+      {super.key, required this.outfit, required this.currentWeather});
 
   // builds outfit card displaying
   // outfit name, weather tags, clothing items, and edit button
@@ -31,20 +32,24 @@ class OutfitCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     outfit.name,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ),
                 TextButton(
                   onPressed: () => _navigateToOutfit(context, outfit),
+                  style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(40, 30)),
                   child: const Text('Edit', style: TextStyle(fontSize: 16)),
-                  style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size(40, 30)),
                 ),
               ],
             ),
             const SizedBox(height: 4),
-            _buildWeatherTag(),
+            _makeWeatherRow(),
             const SizedBox(height: 12),
-            FutureBuilder<List<dynamic>>( // dynamic for ClothingItem
+            FutureBuilder<List<dynamic>>(
+              // dynamic for ClothingItem
               future: outfit.getClothingItems(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -78,26 +83,37 @@ class OutfitCard extends StatelessWidget {
         MaterialPageRoute(builder: (context) => OutfitView(outfit: outfit)));
   }
 
-  Widget _buildWeatherTag() {
+  // makes row of weather tags for outfit
+  Widget _makeWeatherRow() {
+    List<Widget> weatherTags = [];
     if (outfit.isForSunny) {
-      return _weatherRow(Icons.wb_sunny, 'Sunny');
-    } else if (outfit.isForRainy) {
-      return _weatherRow(Icons.beach_access, 'Rainy');
-    } else if (outfit.isForGloomy) {
-      return _weatherRow(Icons.cloud, 'Cloudy');
-    } else {
-      return _weatherRow(Icons.help_outline, 'Any');
-    }
-  }
-
-  Widget _weatherRow(IconData icon, String label) {
-    return Row(
-      children: [
-        Icon(icon, size: 18),
+      weatherTags.addAll([
+        const Icon(Icons.wb_sunny, size: 18),
         const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 16)),
-      ],
-    );
+        const Text('Sunny', style: TextStyle(fontSize: 16)),
+        const SizedBox(width: 4),
+      ]);
+    }
+
+    if (outfit.isForRainy) {
+      weatherTags.addAll([
+        const Icon(Icons.beach_access, size: 18),
+        const SizedBox(width: 4),
+        const Text('Rainy', style: TextStyle(fontSize: 16)),
+        const SizedBox(width: 4),
+      ]);
+    }
+
+    if (outfit.isForRainy) {
+      weatherTags.addAll([
+        const Icon(Icons.cloud, size: 18),
+        const SizedBox(width: 4),
+        const Text('Gloomy', style: TextStyle(fontSize: 16)),
+        const SizedBox(width: 4),
+      ]);
+    }
+
+    return Row ( children: weatherTags);
   }
 
   Widget _clothingChip(dynamic item) {

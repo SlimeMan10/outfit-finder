@@ -15,7 +15,6 @@ class OutFitFinderApp extends StatefulWidget {
 }
 
 class _OutFitFinderAppState extends State<OutFitFinderApp> {
-  int _selectedIndex = 0;
   late Future<List<Outfit>> _outfitsFuture;
   WeatherCondition? _selectedWeatherFilter;
   bool _isFilterActive = false;
