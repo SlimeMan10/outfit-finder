@@ -344,48 +344,65 @@ class _OutfitViewState extends State<OutfitView> {
   /// 
   /// Returns: A row of weather condition buttons
   Widget _displayWeatherIcons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+    final loc = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _makeWeatherButton('Rainy', isForRainy),
-        const SizedBox(width: 20),
-        _makeWeatherButton('Gloomy', isForGloomy),
-        const SizedBox(width: 20),
-        _makeWeatherButton('Sunny', isForSunny),
+        Text(
+          loc?.weatherConditions ?? 'Weather Conditions',
+          style: const TextStyle(
+            fontSize: 16,
+            color: Colors.grey,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            _buildWeatherIcon(
+              Icons.wb_sunny,
+              isForSunny,
+              loc?.sunny ?? 'Sunny',
+              () => setState(() => isForSunny = !isForSunny),
+            ),
+            const SizedBox(width: 16),
+            _buildWeatherIcon(
+              Icons.cloud,
+              isForGloomy,
+              loc?.cloudyDay ?? 'Cloudy',
+              () => setState(() => isForGloomy = !isForGloomy),
+            ),
+            const SizedBox(width: 16),
+            _buildWeatherIcon(
+              Icons.beach_access,
+              isForRainy,
+              loc?.rainyDay ?? 'Rainy',
+              () => setState(() => isForRainy = !isForRainy),
+            ),
+          ],
+        ),
       ],
     );
   }
 
-  /// Creates a weather condition selection button
-  /// 
-  /// Parameters:
-  /// - condition: The weather condition this button represents
-  /// - isSelected: Whether this condition is currently selected
-  /// Returns: A button widget for selecting a weather condition
-  Widget _makeWeatherButton(String condition, bool isSelected) {
-    IconData icon = switch (condition) {
-      'Gloomy' => Icons.cloud_outlined,
-      'Sunny' => Icons.wb_sunny_outlined,
-      'Rainy' => Icons.thunderstorm_outlined,
-      _ => Icons.question_mark
-    };
-    
-    String label = '$condition weather button, ${isSelected ? "selected" : "not selected"}';
-    
+  Widget _buildWeatherIcon(IconData icon, bool isSelected, String label, VoidCallback onTap) {
     return Semantics(
       label: label,
+      button: true,
+      selected: isSelected,
       child: GestureDetector(
-        onTap: () {
-          setState(() {
-            if (condition == 'Rainy') isForRainy = !isForRainy;
-            if (condition == 'Gloomy') isForGloomy = !isForGloomy;
-            if (condition == 'Sunny') isForSunny = !isForSunny;
-          });
-        },
-        child: Icon(
-          icon,
-          size: 32,
-          color: isSelected ? Colors.black : Colors.grey[400],
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.grey[200] : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            size: 32,
+            color: isSelected ? Colors.black : Colors.grey,
+          ),
         ),
       ),
     );
@@ -403,9 +420,9 @@ class _OutfitViewState extends State<OutfitView> {
         ),
         child: Center(
           child: Semantics(
-            label: loc?.noItemsAdded,
+            label: loc?.noItemsInOutfit,
             child: Text(
-              loc?.noItemsAdded ?? 'No items added yet',
+              loc?.noItemsInOutfit ?? 'No items in this outfit',
               style: const TextStyle(
                 color: Colors.grey,
                 fontSize: 16,
@@ -416,19 +433,12 @@ class _OutfitViewState extends State<OutfitView> {
       );
     }
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 12,
-        children: clothingItems.map((item) {
-          return _buildClothingItem(item);
-        }).toList(),
-      ),
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: clothingItems.map((item) {
+        return _buildClothingItem(item);
+      }).toList(),
     );
   }
 
@@ -523,48 +533,83 @@ class _OutfitViewState extends State<OutfitView> {
     });
   }
 
-  /// Builds 8x2 grid of color buttons to select for new clothing item
+  /// Gets appropriate text color based on background color
+  Color _getTextColorForBackground(Color backgroundColor) {
+    // Calculate relative luminance
+    final luminance = (0.299 * backgroundColor.red + 0.587 * backgroundColor.green + 0.114 * backgroundColor.blue) / 255;
+    // Use white text for dark backgrounds, black text for light backgrounds
+    return luminance > 0.5 ? Colors.black : Colors.white;
+  }
+
+  Widget _buildColorButton(Color color) {
+    final isSelected = color == currentItemColor;
+    return Semantics(
+      label: 'Color button, ${ColorHelper().getStringFromColor(color, context)}${isSelected ? ", selected" : ""}',
+      button: true,
+      selected: isSelected,
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            currentItemColor = color;
+          });
+        },
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: isSelected ? Colors.black : Colors.transparent,
+              width: 2,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildPalette() {
-    // Use all colors defined in ColorHelper
-    final colors = ColorHelper().colorMap.values.toList();
+    final colorHelper = ColorHelper();
+    final colors = [
+      colorHelper.black,
+      colorHelper.darkGrey,
+      colorHelper.lightGrey,
+      colorHelper.white,
+      colorHelper.darkBrown,
+      colorHelper.lightBrown,
+      colorHelper.darkBlue,
+      colorHelper.lightBlue,
+      colorHelper.darkGreen,
+      colorHelper.lightGreen,
+      colorHelper.red,
+      colorHelper.blue,
+      colorHelper.green,
+      colorHelper.yellow,
+      colorHelper.orange,
+      colorHelper.purple,
+      colorHelper.pink,
+      colorHelper.brown,
+      colorHelper.teal,
+      colorHelper.navy,
+      colorHelper.maroon,
+      colorHelper.olive,
+      colorHelper.lime,
+    ];
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 8,
-        childAspectRatio: 1,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
       ),
       itemCount: colors.length,
       itemBuilder: (context, index) {
         final color = colors[index];
-        return _buildColorButton(color, color == currentItemColor);
         return _buildColorButton(color);
       },
-    );
-  }
-
-  /// Builds a circular color button to select item color
-  Widget _buildColorButton(Color color) {
-    final isSelected = color == currentItemColor;
-    return Semantics(
-      label: 'Color button, \\${ColorHelper().getStringFromColor(color)}\\${isSelected ? ", selected" : ""}',
-      child: GestureDetector(
-        onTap: () => setState(() => currentItemColor = color),
-        child: Container(
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: isSelected
-                  ? (color == Colors.black ? Colors.yellow : Colors.black)
-                  : (color == Colors.white ? Colors.grey[300]! : Colors.transparent),
-              width: isSelected ? 3 : (color == Colors.white ? 1 : 0),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
