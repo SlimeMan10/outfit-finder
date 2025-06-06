@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ColorHelper {
   final Color black = Colors.black;
@@ -51,14 +52,76 @@ class ColorHelper {
     'lime': lime,
   };
 
-  Color getColorFromString(String colorString) {
-    return colorMap[colorString.toLowerCase()] ?? white;
+  Color getColorFromString(String colorString, BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    if (loc == null) return white;
+
+    // Map localized color names to English keys
+    final Map<String, String> localizedToEnglish = {
+      loc.black: 'black',
+      loc.darkGrey: 'darkgrey',
+      loc.lightGrey: 'lightgrey',
+      loc.white: 'white',
+      loc.darkBrown: 'darkbrown',
+      loc.lightBrown: 'lightbrown',
+      loc.darkBlue: 'darkblue',
+      loc.lightBlue: 'lightblue',
+      loc.darkGreen: 'darkgreen',
+      loc.lightGreen: 'lightgreen',
+      loc.red: 'red',
+      loc.blue: 'blue',
+      loc.green: 'green',
+      loc.yellow: 'yellow',
+      loc.orange: 'orange',
+      loc.purple: 'purple',
+      loc.pink: 'pink',
+      loc.brown: 'brown',
+      loc.teal: 'teal',
+      loc.navy: 'navy',
+      loc.maroon: 'maroon',
+      loc.olive: 'olive',
+      loc.lime: 'lime',
+    };
+
+    final englishKey = localizedToEnglish[colorString.toLowerCase()] ?? 'white';
+    return colorMap[englishKey] ?? white;
   }
 
-  String getStringFromColor(Color color) {
-    return colorMap.entries
+  String getStringFromColor(Color color, BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    if (loc == null) return 'white';
+
+    // Map English keys to localized color names
+    final Map<String, String> englishToLocalized = {
+      'black': loc.black,
+      'darkgrey': loc.darkGrey,
+      'lightgrey': loc.lightGrey,
+      'white': loc.white,
+      'darkbrown': loc.darkBrown,
+      'lightbrown': loc.lightBrown,
+      'darkblue': loc.darkBlue,
+      'lightblue': loc.lightBlue,
+      'darkgreen': loc.darkGreen,
+      'lightgreen': loc.lightGreen,
+      'red': loc.red,
+      'blue': loc.blue,
+      'green': loc.green,
+      'yellow': loc.yellow,
+      'orange': loc.orange,
+      'purple': loc.purple,
+      'pink': loc.pink,
+      'brown': loc.brown,
+      'teal': loc.teal,
+      'navy': loc.navy,
+      'maroon': loc.maroon,
+      'olive': loc.olive,
+      'lime': loc.lime,
+    };
+
+    final englishKey = colorMap.entries
         .firstWhere((entry) => entry.value == color,
             orElse: () => MapEntry('white', white))
         .key;
+    return englishToLocalized[englishKey] ?? loc.white;
   }
 }

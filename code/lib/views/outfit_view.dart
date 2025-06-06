@@ -100,25 +100,27 @@ class _OutfitViewState extends State<OutfitView> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: Semantics(
-          label: loc?.backToWardrobe,
+          label: loc.backToWardrobe,
+          button: true,
           child: IconButton(
             icon: Icon(
               Icons.arrow_back,
-              semanticLabel: loc?.backToWardrobe,
+              semanticLabel: loc.backToWardrobe,
             ),
             onPressed: () {
               Navigator.pop(context);
             },
-            tooltip: loc?.backToWardrobe,
+            tooltip: loc.backToWardrobe,
           ),
         ),
         actions: [
           Semantics(
-            label: loc?.undo,
+            label: loc.undo,
+            button: true,
             child: IconButton(
               icon: Icon(
                 Icons.undo,
-                semanticLabel: loc?.undo,
+                semanticLabel: loc.undo,
               ),
               onPressed: clothingItems.isNotEmpty
                   ? () {
@@ -128,15 +130,16 @@ class _OutfitViewState extends State<OutfitView> {
                       });
                     }
                   : null,
-              tooltip: loc?.undo,
+              tooltip: loc.undo,
             ),
           ),
           Semantics(
-            label: loc?.redo,
+            label: loc.redo,
+            button: true,
             child: IconButton(
               icon: Icon(
                 Icons.redo,
-                semanticLabel: loc?.redo,
+                semanticLabel: loc.redo,
               ),
               onPressed: _undoStack.isNotEmpty
                   ? () {
@@ -146,14 +149,19 @@ class _OutfitViewState extends State<OutfitView> {
                       });
                     }
                   : null,
-              tooltip: loc?.redo,
+              tooltip: loc.redo,
             ),
           ),
           if (widget.outfit.name.isNotEmpty) // Only show delete for existing outfits
             Semantics(
-              label: 'Delete outfit',
+              label: loc.deleteOutfit,
+              button: true,
               child: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.black),
+                icon: Icon(
+                  Icons.delete,
+                  color: Colors.black,
+                  semanticLabel: loc.deleteOutfit,
+                ),
                 onPressed: () => _showDeleteConfirmation(context),
               ),
             ),
@@ -172,10 +180,10 @@ class _OutfitViewState extends State<OutfitView> {
                   Expanded(
                     child: TextField(
                       controller: _nameController,
-                      decoration: const InputDecoration(
-                        hintText: 'Outfit Name',
+                      decoration: InputDecoration(
+                        hintText: loc.outfitNameLabel,
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 8),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 8),
                       ),
                       style: const TextStyle(
                         fontSize: 28,
@@ -198,9 +206,9 @@ class _OutfitViewState extends State<OutfitView> {
               const SizedBox(height: 32),
               
               // Clothing Items section
-              const Text(
-                'Clothing Items',
-                style: TextStyle(
+              Text(
+                loc.currentItems,
+                style: const TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
                   fontWeight: FontWeight.w500,
@@ -219,7 +227,8 @@ class _OutfitViewState extends State<OutfitView> {
                 child: SizedBox(
                   width: 200,
                   child: Semantics(
-                    label: 'Save outfit',
+                    label: loc.saveOutfit,
+                    button: true,
                     child: ElevatedButton(
                       onPressed: () => _doSave(context),
                       style: ElevatedButton.styleFrom(
@@ -231,9 +240,9 @@ class _OutfitViewState extends State<OutfitView> {
                           borderRadius: BorderRadius.circular(25),
                         ),
                       ),
-                      child: const Text(
-                        'Create Outfit',
-                        style: TextStyle(
+                      child: Text(
+                        loc.saveOutfit,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),
@@ -384,6 +393,7 @@ class _OutfitViewState extends State<OutfitView> {
 
   /// Displays outfit's clothing items in a rounded container
   Widget _displayClothingItems() {
+    final loc = AppLocalizations.of(context);
     if (clothingItems.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(20),
@@ -391,10 +401,16 @@ class _OutfitViewState extends State<OutfitView> {
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(16),
         ),
-        child: const Center(
-          child: Text(
-            'No items added yet',
-            style: TextStyle(color: Colors.grey),
+        child: Center(
+          child: Semantics(
+            label: loc?.noItemsAdded,
+            child: Text(
+              loc?.noItemsAdded ?? 'No items added yet',
+              style: const TextStyle(
+                color: Colors.grey,
+                fontSize: 16,
+              ),
+            ),
           ),
         ),
       );
@@ -410,62 +426,53 @@ class _OutfitViewState extends State<OutfitView> {
         spacing: 12,
         runSpacing: 12,
         children: clothingItems.map((item) {
-          return _buildClothingItemChip(item);
+          return _buildClothingItem(item);
         }).toList(),
       ),
     );
   }
 
   /// Builds a clothing item chip
-  Widget _buildClothingItemChip(ClothingItem item) {
-    final color = ColorHelper().getColorFromString(item.colorName);
-    return Semantics(
-      label: 'Clothing item: \\${item.description}, color: \\${item.colorName}',
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            clothingItems.remove(item);
-          });
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.grey[300]!),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                item.description,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black,
-                ),
+  Widget _buildClothingItem(ClothingItem item) {
+    final color = ColorHelper().getColorFromString(item.colorName, context);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              item.description,
+              style: TextStyle(
+                color: _getTextColorForBackground(color),
+                fontSize: 16,
               ),
-              const SizedBox(width: 8),
-              Container(
-                width: 16,
-                height: 16,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: color == Colors.white ? Colors.grey : Colors.transparent,
-                    width: color == Colors.white ? 2 : 0,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+          IconButton(
+            icon: Icon(
+              Icons.delete,
+              color: _getTextColorForBackground(color),
+            ),
+            onPressed: () {
+              setState(() {
+                clothingItems.remove(item);
+                _undoStack.add(item);
+              });
+            },
+          ),
+        ],
       ),
     );
   }
 
   /// Creates tile for creating a new clothing item
   Widget _createItemTile() {
+    final loc = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -474,19 +481,23 @@ class _OutfitViewState extends State<OutfitView> {
       ),
       child: Column(
         children: [
-          TextField(
-            controller: _itemController,
-            decoration: const InputDecoration(
-              hintText: 'Enter Item',
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.all(12),
+          Semantics(
+            label: loc?.addClothingItem,
+            button: true,
+            child: TextField(
+              controller: _itemController,
+              decoration: InputDecoration(
+                hintText: loc?.itemDescription,
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.all(12),
+              ),
+              onChanged: (value) => currentItemText = value,
+              onSubmitted: (value) {
+                if (value.isNotEmpty) {
+                  addItem();
+                }
+              },
             ),
-            onChanged: (value) => currentItemText = value,
-            onSubmitted: (value) {
-              if (value.isNotEmpty) {
-                addItem();
-              }
-            },
           ),
           const SizedBox(height: 16),
           _buildPalette(),
@@ -499,7 +510,7 @@ class _OutfitViewState extends State<OutfitView> {
   void addItem() {
     if (currentItemText.isEmpty) return;
     
-    final colorName = ColorHelper().getStringFromColor(currentItemColor);
+    final colorName = ColorHelper().getStringFromColor(currentItemColor, context);
     final itemToAdd = ClothingItem(
       description: currentItemText,
       colorName: colorName,
@@ -528,6 +539,7 @@ class _OutfitViewState extends State<OutfitView> {
       itemCount: colors.length,
       itemBuilder: (context, index) {
         final color = colors[index];
+        return _buildColorButton(color, color == currentItemColor);
         return _buildColorButton(color);
       },
     );

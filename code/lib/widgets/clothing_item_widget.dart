@@ -6,39 +6,30 @@ class ClothingItemWidget extends StatelessWidget {
   final ClothingItem item;
 
   ClothingItemWidget({super.key, required this.item});
-  final colorHelper = ColorHelper();
 
   @override
   Widget build(BuildContext context) {
+    final colorHelper = ColorHelper();
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: const ShapeDecoration(
-          color: Colors.white,
-          shape: StadiumBorder(
-              side: BorderSide(
-            color: Color(0x33000000),
-            width: 0.5,
-          ))),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            item.description,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.normal),
-          ),
-          const SizedBox(width: 8),
-          Container(
-              width: 16,
-              height: 16,
-              decoration: BoxDecoration(
-                  color: colorHelper.getColorFromString(item.colorName),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: const Color(0x33000000),
-                    width: 0.5,
-                  )))
-        ],
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorHelper.getColorFromString(item.colorName, context),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        item.description,
+        style: TextStyle(
+          color: _getTextColorForBackground(colorHelper.getColorFromString(item.colorName, context)),
+          fontSize: 16,
+        ),
       ),
     );
+  }
+
+  Color _getTextColorForBackground(Color backgroundColor) {
+    // Implement the logic to determine text color based on the background color
+    // This is a placeholder and should be replaced with the actual implementation
+    return Colors.white;
   }
 }

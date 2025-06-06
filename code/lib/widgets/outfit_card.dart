@@ -138,7 +138,7 @@ class OutfitCard extends StatelessWidget {
   /// Returns: A chip widget showing the item's description and color
   Widget _clothingChip(BuildContext context, dynamic item) {
     final colorHelper = ColorHelper();
-    final color = colorHelper.getColorFromString(item.colorName);
+    final color = colorHelper.getColorFromString(item.colorName, context);
     final loc = AppLocalizations.of(context);
     if (loc == null) return const SizedBox.shrink();
 
