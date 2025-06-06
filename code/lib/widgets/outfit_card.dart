@@ -163,7 +163,7 @@ class OutfitCard extends StatelessWidget {
               border: Border.all(color: Colors.grey.shade400, width: 1),
             ),
             child: Semantics(
-              label: '${item.description} color: ${item.colorName}',
+              label: '${loc.prenda} ${item.description} ${loc.color}: ${item.colorName}',
               child: const SizedBox.shrink(),
             ),
           ),

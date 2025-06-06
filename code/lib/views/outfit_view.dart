@@ -444,37 +444,11 @@ class _OutfitViewState extends State<OutfitView> {
 
   /// Builds a clothing item chip
   Widget _buildClothingItemChip(ClothingItem item) {
-    // Use the exact color map from ColorHelper
-    final Map<String, Color> hardcodedColorMap = {
-      'black': Colors.black,
-      'darkgrey': const Color(0xFF676767),
-      'lightgrey': const Color(0xFFCBCBCB),
-      'white': Colors.white,
-      'darkbrown': const Color(0xFF634200),
-      'lightbrown': const Color(0xFFDCB25F),
-      'darkblue': const Color(0xFF014FE0),
-      'lightblue': const Color(0xFF6CB6FF),
-      'darkgreen': const Color(0xFF157100),
-      'lightgreen': const Color(0xFF5BEB3B),
-      'red': Colors.red,
-      'blue': Colors.blue,
-      'green': Colors.green,
-      'yellow': Colors.yellow,
-      'orange': Colors.orange,
-      'purple': Colors.purple,
-      'pink': Colors.pink,
-      'brown': Colors.brown,
-      'teal': Colors.teal,
-      'navy': const Color(0xFF000080),
-      'maroon': const Color(0xFF800000),
-      'olive': const Color(0xFF808000),
-      'lime': Colors.lime,
-    };
-    final color = hardcodedColorMap[item.colorName.toLowerCase()] ?? Colors.white;
+    final color = ColorHelper().getColorFromString(item.colorName, context);
     final loc = AppLocalizations.of(context);
     final localizedColorName = ColorHelper().getLocalizedColorName(item.colorName, context);
     return Semantics(
-      label: '${loc?.addClothingItem ?? "Clothing item"}: ${item.description}, ${loc?.color ?? "color"}: $localizedColorName',
+      label: '${loc?.addClothingItem ?? "Prenda"}: ${item.description}, ${loc?.color ?? "Color"}: $localizedColorName',
       child: GestureDetector(
         onTap: () {
           setState(() {
@@ -556,13 +530,16 @@ class _OutfitViewState extends State<OutfitView> {
   /// Adds new item from current description and color to items
   void addItem() {
     if (currentItemText.isEmpty) return;
-    // Always store the English key from the color map
-    final colorName = ColorHelper().colorMap.entries
+    // Get the localized color name for storage
+    final loc = AppLocalizations.of(context);
+    final englishKey = ColorHelper().colorMap.entries
         .firstWhere((entry) => entry.value == currentItemColor, orElse: () => MapEntry('white', Colors.white))
         .key;
+    final localizedColorName = ColorHelper().getLocalizedColorName(englishKey, context);
+    
     final itemToAdd = ClothingItem(
       description: currentItemText,
-      colorName: colorName,
+      colorName: localizedColorName, // Store the localized color name
     );
     setState(() {
       clothingItems.add(itemToAdd);
