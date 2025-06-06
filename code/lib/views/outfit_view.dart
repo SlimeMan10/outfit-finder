@@ -15,11 +15,15 @@ class OutfitView extends StatefulWidget {
   /// The outfit to be edited or used as a template for creation
   final Outfit outfit;
 
+  /// Callback to trigger a refresh in the parent view
+  final VoidCallback? onRefresh;
+
   /// Creates a new OutfitView instance.
   /// 
   /// Parameters:
   /// - outfit: The outfit to edit or use as a template
-  const OutfitView({super.key, required this.outfit});
+  /// - onRefresh: Callback to refresh parent after save/delete
+  const OutfitView({super.key, required this.outfit, this.onRefresh});
 
   @override
   State<OutfitView> createState() => _OutfitViewState();
@@ -260,6 +264,7 @@ class _OutfitViewState extends State<OutfitView> {
 
     if (confirmed == true && context.mounted) {
       await context.read<DatabaseProvider>().deleteOutfit(widget.outfit);
+      if (widget.onRefresh != null) widget.onRefresh!();
       if (context.mounted) {
         Navigator.pop(context);
       }
@@ -289,13 +294,21 @@ class _OutfitViewState extends State<OutfitView> {
       );
       await dbProvider.addOutfit(newOutfit);
 
-      // 2. Add all clothing items to the new outfit (persist links)
-      for (var item in clothingItems) {
-        await dbProvider.addItemToOutfit(newOutfit, item);
+      // 2. Reload the managed Outfit from Isar
+      final managedOutfit = await dbProvider.getOutfitByNameAndFlags(
+        currentOutfitNameText, isForGloomy, isForRainy, isForSunny);
+      if (managedOutfit == null) {
+        throw Exception('Failed to reload saved outfit from database.');
       }
 
-      // 3. Reload data and pop back to all outfits view
+      // 3. Add all clothing items to the managed outfit (persist links)
+      for (var item in clothingItems) {
+        await dbProvider.addItemToOutfit(managedOutfit, item);
+      }
+
+      // 4. Reload data and pop back to all outfits view
       await dbProvider.loadData();
+      if (widget.onRefresh != null) widget.onRefresh!();
       if (context.mounted) {
         Navigator.pop(context);
       }

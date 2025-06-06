@@ -81,6 +81,11 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
 
   @override
   Widget build(BuildContext context) {
+    void refreshOutfits() {
+      setState(() {
+        _outfitsFuture = widget.venues.getAllOutfits();
+      });
+    }
     return MaterialApp(
       title: 'Outfit Finder',
       theme: ThemeData(
@@ -97,7 +102,7 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
               return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
+              return Center(child: Text('Error: \\${snapshot.error}'));
             }
             if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return const Center(child: Text('No outfits found'));
@@ -118,27 +123,30 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
                     });
                   },
                   isFilterActive: _isFilterActive,
+                  onAddOutfit: refreshOutfits,
+                  onRefresh: refreshOutfits,
                 ),
-                Expanded(child: WeatherFilter(outfits: filteredOutfits)),
+                Expanded(
+                  child: WeatherFilter(
+                    outfits: filteredOutfits,
+                    onRefresh: refreshOutfits,
+                  ),
+                ),
               ],
             );
           },
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => OutfitView(outfit: Outfit(name: '')),
-              ),
-            ).then((_) {
-              setState(() {
-                _outfitsFuture = widget.venues.getAllOutfits();
-              });
-            });
-          },
-          child: const Icon(Icons.add),
-        ),
+        // Add a WillPopScope to always reload outfits when returning to this view
       ),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Always reload outfits when dependencies change (e.g., after popping back)
+    setState(() {
+      _outfitsFuture = widget.venues.getAllOutfits();
+    });
   }
 }

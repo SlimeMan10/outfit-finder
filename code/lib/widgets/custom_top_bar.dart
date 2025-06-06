@@ -22,17 +22,27 @@ class CustomTopBar extends StatelessWidget {
   /// Flag indicating if the weather filter is currently active
   final bool isFilterActive;
 
+  /// Callback to refresh the parent view after adding an outfit
+  final VoidCallback? onAddOutfit;
+
+  /// Callback to refresh the parent view after any add/edit/delete
+  final VoidCallback? onRefresh;
+
   /// Creates a new CustomTopBar instance.
   /// 
   /// Parameters:
   /// - onFilterPressed: Callback for filter button press
   /// - onWeatherFilterSelected: Callback for weather filter selection
   /// - isFilterActive: Current state of the filter
+  /// - onAddOutfit: Callback to refresh after adding an outfit
+  /// - onRefresh: Callback to refresh after any add/edit/delete
   const CustomTopBar({
     super.key, 
     required this.onFilterPressed, 
     required this.onWeatherFilterSelected,
     required this.isFilterActive,
+    this.onAddOutfit,
+    this.onRefresh,
   });
 
   @override
@@ -129,12 +139,13 @@ class CustomTopBar extends StatelessWidget {
                         size: 28,
                         color: textColor,
                       ),
-                      onPressed: () {
-                        Navigator.of(context).push(
+                      onPressed: () async {
+                        await Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => OutfitView(outfit: Outfit(name: '')),
+                            builder: (context) => OutfitView(outfit: Outfit(name: ''), onRefresh: onRefresh),
                           ),
                         );
+                        if (onAddOutfit != null) onAddOutfit!();
                       },
                       tooltip: loc.addClothingItem,
                     ),
