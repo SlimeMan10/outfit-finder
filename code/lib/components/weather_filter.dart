@@ -45,7 +45,7 @@ class _WeatherFilterState extends State<WeatherFilter> {
     if (!_matchesWeatherCondition(outfit)) {
       return const SizedBox.shrink();
     }
-    return OutfitCard(outfit: outfit, currentWeather: currentWeather);
+    return OutfitCard(outfit: outfit, currentWeather: currentWeather, onRefresh: widget.onRefresh);
   }
 
   /// Checks if an outfit matches the selected weather condition

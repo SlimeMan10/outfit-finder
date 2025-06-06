@@ -16,15 +16,20 @@ class OutfitCard extends StatelessWidget {
   /// The current weather condition
   final WeatherCondition currentWeather;
 
+  /// Callback to trigger a refresh in the parent view
+  final VoidCallback? onRefresh;
+
   /// Creates a new OutfitCard instance.
   /// 
   /// Parameters:
   /// - outfit: The outfit to display
   /// - currentWeather: The current weather condition
+  /// - onRefresh: Callback to refresh parent after edit/delete
   const OutfitCard({
     super.key, 
     required this.outfit, 
-    required this.currentWeather
+    required this.currentWeather,
+    this.onRefresh,
   });
 
   /// Builds the outfit card with name, weather tags, and clothing items.
@@ -97,7 +102,7 @@ class OutfitCard extends StatelessWidget {
   /// - outfit: The outfit to edit
   Future<void> _navigateToOutfit(BuildContext context, Outfit outfit) async {
     await Navigator.push(context,
-        MaterialPageRoute(builder: (context) => OutfitView(outfit: outfit)));
+        MaterialPageRoute(builder: (context) => OutfitView(outfit: outfit, onRefresh: onRefresh)));
   }
 
   Widget _buildWeatherTag(BuildContext context) {
