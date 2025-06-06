@@ -528,15 +528,14 @@ class _OutfitViewState extends State<OutfitView> {
   /// Adds new item from current description and color to items
   void addItem() {
     if (currentItemText.isEmpty) return;
-    // Get the localized color name for storage
+    // Get the English key for the color
     final englishKey = ColorHelper().colorMap.entries
         .firstWhere((entry) => entry.value == currentItemColor, orElse: () => const MapEntry('white', Colors.white))
         .key;
-    final localizedColorName = ColorHelper().getLocalizedColorName(englishKey, context);
     
     final itemToAdd = ClothingItem(
       description: currentItemText,
-      colorName: localizedColorName, // Store the localized color name
+      colorName: englishKey, // Store the English key instead of localized name
     );
     setState(() {
       clothingItems.add(itemToAdd);
