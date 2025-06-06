@@ -3,7 +3,7 @@
   "saveOutfit": "Guardar Atuendo",
   "deleteOutfit": "Eliminar Atuendo",
   "outfitNameLabel": "Nombre del Atuendo",
-  "weatherConditions": "Condiciones Climáticas",
+  "weatherConditions": "Filtrar por condiciones climáticas",
   "addClothingItem": "Agregar Prenda",
   "currentItems": "Prendas Actuales",
   "addItem": "Agregar Prenda",
@@ -35,6 +35,9 @@
   "addNewOutfit": "Agregar nuevo atuendo",
   "changeLanguage": "Cambiar idioma",
   "selectLanguage": "Seleccionar idioma",
-  "undo": "Deshacer",
-  "redo": "Rehacer"
+  "undo": "Deshacer eliminación de prenda",
+  "redo": "Rehacer eliminación de prenda",
+  "unknown": "Desconocido",
+  "todaysWeather": "Clima de hoy: {weather}",
+  "backToWardrobe": "Volver al guardarropa"
 }
