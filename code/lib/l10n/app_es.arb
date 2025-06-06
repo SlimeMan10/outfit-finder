@@ -62,5 +62,8 @@
   "navy": "Azul Marino",
   "maroon": "Granate",
   "olive": "Oliva",
-  "lime": "Lima"
+  "lime": "Lima",
+  "emptyOutfitState": "Estado de atuendo vacío",
+  "color": "Color",
+  "selected": "seleccionado"
 }

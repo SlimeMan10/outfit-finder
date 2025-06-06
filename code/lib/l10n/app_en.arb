@@ -64,6 +64,9 @@
   "maroon": "Maroon",
   "olive": "Olive",
   "lime": "Lime",
+  "emptyOutfitState": "Empty outfit state",
+  "color": "Color",
+  "selected": "selected",
   "@undo": {
     "description": "Label for the undo button"
   },

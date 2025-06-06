@@ -83,6 +83,12 @@ class ColorHelper {
       loc.lime: 'lime',
     };
 
+    // First try to get the color directly from the colorMap (for English keys)
+    if (colorMap.containsKey(colorString.toLowerCase())) {
+      return colorMap[colorString.toLowerCase()]!;
+    }
+
+    // If not found, try to map from localized name to English key
     final englishKey = localizedToEnglish[colorString.toLowerCase()] ?? 'white';
     return colorMap[englishKey] ?? white;
   }
@@ -123,5 +129,36 @@ class ColorHelper {
             orElse: () => MapEntry('white', white))
         .key;
     return englishToLocalized[englishKey] ?? loc.white;
+  }
+
+  String getLocalizedColorName(String englishKey, BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    if (loc == null) return englishKey;
+    final englishToLocalized = {
+      'black': loc.black,
+      'darkgrey': loc.darkGrey,
+      'lightgrey': loc.lightGrey,
+      'white': loc.white,
+      'darkbrown': loc.darkBrown,
+      'lightbrown': loc.lightBrown,
+      'darkblue': loc.darkBlue,
+      'lightblue': loc.lightBlue,
+      'darkgreen': loc.darkGreen,
+      'lightgreen': loc.lightGreen,
+      'red': loc.red,
+      'blue': loc.blue,
+      'green': loc.green,
+      'yellow': loc.yellow,
+      'orange': loc.orange,
+      'purple': loc.purple,
+      'pink': loc.pink,
+      'brown': loc.brown,
+      'teal': loc.teal,
+      'navy': loc.navy,
+      'maroon': loc.maroon,
+      'olive': loc.olive,
+      'lime': loc.lime,
+    };
+    return englishToLocalized[englishKey] ?? englishKey;
   }
 }

@@ -100,27 +100,27 @@ class _OutfitViewState extends State<OutfitView> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: Semantics(
-          label: loc.backToWardrobe,
+          label: loc.backButtonLabel,
           button: true,
           child: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back,
-              semanticLabel: loc.backToWardrobe,
+              color: Colors.black,
             ),
             onPressed: () {
               Navigator.pop(context);
             },
-            tooltip: loc.backToWardrobe,
+            tooltip: loc.backButtonLabel,
           ),
         ),
         actions: [
           Semantics(
-            label: loc.undo,
+            label: 'Undo',
             button: true,
             child: IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.undo,
-                semanticLabel: loc.undo,
+                color: Colors.black,
               ),
               onPressed: clothingItems.isNotEmpty
                   ? () {
@@ -130,16 +130,16 @@ class _OutfitViewState extends State<OutfitView> {
                       });
                     }
                   : null,
-              tooltip: loc.undo,
+              tooltip: 'Undo',
             ),
           ),
           Semantics(
-            label: loc.redo,
+            label: 'Redo',
             button: true,
             child: IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.redo,
-                semanticLabel: loc.redo,
+                color: Colors.black,
               ),
               onPressed: _undoStack.isNotEmpty
                   ? () {
@@ -149,7 +149,7 @@ class _OutfitViewState extends State<OutfitView> {
                       });
                     }
                   : null,
-              tooltip: loc.redo,
+              tooltip: 'Redo',
             ),
           ),
           if (widget.outfit.name.isNotEmpty) // Only show delete for existing outfits
@@ -157,10 +157,9 @@ class _OutfitViewState extends State<OutfitView> {
               label: loc.deleteOutfit,
               button: true,
               child: IconButton(
-                icon: Icon(
+                icon: const Icon(
                   Icons.delete,
                   color: Colors.black,
-                  semanticLabel: loc.deleteOutfit,
                 ),
                 onPressed: () => _showDeleteConfirmation(context),
               ),
@@ -174,7 +173,7 @@ class _OutfitViewState extends State<OutfitView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Outfit title with editable text field
+              // Outfit title with editable text field (no pop-up)
               Row(
                 children: [
                   Expanded(
@@ -240,9 +239,9 @@ class _OutfitViewState extends State<OutfitView> {
                           borderRadius: BorderRadius.circular(25),
                         ),
                       ),
-                      child: Text(
-                        loc.saveOutfit,
-                        style: const TextStyle(
+                      child: const Text(
+                        'Create Outfit',
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),
@@ -263,19 +262,20 @@ class _OutfitViewState extends State<OutfitView> {
   /// Parameters:
   /// - context: The build context
   Future<void> _showDeleteConfirmation(BuildContext context) async {
+    final loc = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Outfit'),
-        content: const Text('Are you sure you want to delete this outfit?'),
+        title: Text(loc?.deleteOutfit ?? 'Delete Outfit'),
+        content: Text(loc?.deleteConfirmation ?? 'Are you sure you want to delete this outfit?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(loc?.cancel ?? 'Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(loc?.deleteOutfit ?? 'Delete'),
           ),
         ],
       ),
@@ -295,9 +295,10 @@ class _OutfitViewState extends State<OutfitView> {
   /// Parameters:
   /// - context: The build context
   void _doSave(BuildContext context) async {
+    final loc = AppLocalizations.of(context);
     if (currentOutfitNameText.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter an outfit name')),
+        SnackBar(content: Text(loc?.pleaseEnterOutfitName ?? 'Please enter an outfit name')),
       );
       return;
     }
@@ -334,7 +335,7 @@ class _OutfitViewState extends State<OutfitView> {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save outfit: $e')),
+          SnackBar(content: Text('${loc?.error ?? 'Failed to save outfit'}: $e')),
         );
       }
     }
@@ -344,65 +345,56 @@ class _OutfitViewState extends State<OutfitView> {
   /// 
   /// Returns: A row of weather condition buttons
   Widget _displayWeatherIcons() {
-    final loc = AppLocalizations.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text(
-          loc?.weatherConditions ?? 'Weather Conditions',
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            _buildWeatherIcon(
-              Icons.wb_sunny,
-              isForSunny,
-              loc?.sunny ?? 'Sunny',
-              () => setState(() => isForSunny = !isForSunny),
-            ),
-            const SizedBox(width: 16),
-            _buildWeatherIcon(
-              Icons.cloud,
-              isForGloomy,
-              loc?.cloudyDay ?? 'Cloudy',
-              () => setState(() => isForGloomy = !isForGloomy),
-            ),
-            const SizedBox(width: 16),
-            _buildWeatherIcon(
-              Icons.beach_access,
-              isForRainy,
-              loc?.rainyDay ?? 'Rainy',
-              () => setState(() => isForRainy = !isForRainy),
-            ),
-          ],
-        ),
+        _makeWeatherButton('Rainy', isForRainy),
+        const SizedBox(width: 20),
+        _makeWeatherButton('Gloomy', isForGloomy),
+        const SizedBox(width: 20),
+        _makeWeatherButton('Sunny', isForSunny),
       ],
     );
   }
 
-  Widget _buildWeatherIcon(IconData icon, bool isSelected, String label, VoidCallback onTap) {
+  /// Creates a weather condition selection button
+  /// 
+  /// Parameters:
+  /// - condition: The weather condition this button represents
+  /// - isSelected: Whether this condition is currently selected
+  /// Returns: A button widget for selecting a weather condition
+  Widget _makeWeatherButton(String condition, bool isSelected) {
+    final loc = AppLocalizations.of(context);
+    IconData icon = switch (condition) {
+      'Gloomy' => Icons.cloud_outlined,
+      'Sunny' => Icons.wb_sunny_outlined,
+      'Rainy' => Icons.thunderstorm_outlined,
+      _ => Icons.question_mark
+    };
+    
+    String label = switch (condition) {
+      'Gloomy' => loc?.cloudyDay ?? 'Cloudy',
+      'Sunny' => loc?.sunny ?? 'Sunny',
+      'Rainy' => loc?.rainyDay ?? 'Rainy',
+      _ => condition
+    };
+    
     return Semantics(
-      label: label,
+      label: '$label weather button, ${isSelected ? "selected" : "not selected"}',
       button: true,
       selected: isSelected,
       child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.grey[200] : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            icon,
-            size: 32,
-            color: isSelected ? Colors.black : Colors.grey,
-          ),
+        onTap: () {
+          setState(() {
+            if (condition == 'Rainy') isForRainy = !isForRainy;
+            if (condition == 'Gloomy') isForGloomy = !isForGloomy;
+            if (condition == 'Sunny') isForSunny = !isForSunny;
+          });
+        },
+        child: Icon(
+          icon,
+          size: 32,
+          color: isSelected ? Colors.black : Colors.grey[400],
         ),
       ),
     );
@@ -420,7 +412,8 @@ class _OutfitViewState extends State<OutfitView> {
         ),
         child: Center(
           child: Semantics(
-            label: loc?.noItemsInOutfit,
+            label: loc?.noItemsInOutfit ?? 'No items in this outfit',
+            excludeSemantics: true,
             child: Text(
               loc?.noItemsInOutfit ?? 'No items in this outfit',
               style: const TextStyle(
@@ -433,49 +426,94 @@ class _OutfitViewState extends State<OutfitView> {
       );
     }
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: clothingItems.map((item) {
-        return _buildClothingItem(item);
-      }).toList(),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: clothingItems.map((item) {
+          return _buildClothingItemChip(item);
+        }).toList(),
+      ),
     );
   }
 
   /// Builds a clothing item chip
-  Widget _buildClothingItem(ClothingItem item) {
-    final color = ColorHelper().getColorFromString(item.colorName, context);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              item.description,
-              style: TextStyle(
-                color: _getTextColorForBackground(color),
-                fontSize: 16,
+  Widget _buildClothingItemChip(ClothingItem item) {
+    // Use the exact color map from ColorHelper
+    final Map<String, Color> hardcodedColorMap = {
+      'black': Colors.black,
+      'darkgrey': const Color(0xFF676767),
+      'lightgrey': const Color(0xFFCBCBCB),
+      'white': Colors.white,
+      'darkbrown': const Color(0xFF634200),
+      'lightbrown': const Color(0xFFDCB25F),
+      'darkblue': const Color(0xFF014FE0),
+      'lightblue': const Color(0xFF6CB6FF),
+      'darkgreen': const Color(0xFF157100),
+      'lightgreen': const Color(0xFF5BEB3B),
+      'red': Colors.red,
+      'blue': Colors.blue,
+      'green': Colors.green,
+      'yellow': Colors.yellow,
+      'orange': Colors.orange,
+      'purple': Colors.purple,
+      'pink': Colors.pink,
+      'brown': Colors.brown,
+      'teal': Colors.teal,
+      'navy': const Color(0xFF000080),
+      'maroon': const Color(0xFF800000),
+      'olive': const Color(0xFF808000),
+      'lime': Colors.lime,
+    };
+    final color = hardcodedColorMap[item.colorName.toLowerCase()] ?? Colors.white;
+    final loc = AppLocalizations.of(context);
+    final localizedColorName = ColorHelper().getLocalizedColorName(item.colorName, context);
+    return Semantics(
+      label: '${loc?.addClothingItem ?? "Clothing item"}: ${item.description}, ${loc?.color ?? "color"}: $localizedColorName',
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            clothingItems.remove(item);
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey[300]!),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                item.description,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black,
+                ),
               ),
-            ),
+              const SizedBox(width: 8),
+              Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: color == Colors.white ? Colors.grey : Colors.transparent,
+                    width: color == Colors.white ? 2 : 0,
+                  ),
+                ),
+              ),
+            ],
           ),
-          IconButton(
-            icon: Icon(
-              Icons.delete,
-              color: _getTextColorForBackground(color),
-            ),
-            onPressed: () {
-              setState(() {
-                clothingItems.remove(item);
-                _undoStack.add(item);
-              });
-            },
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -492,14 +530,13 @@ class _OutfitViewState extends State<OutfitView> {
       child: Column(
         children: [
           Semantics(
-            label: loc?.addClothingItem,
-            button: true,
+            label: loc?.addClothingItem ?? 'Add clothing item',
             child: TextField(
               controller: _itemController,
-              decoration: InputDecoration(
-                hintText: loc?.itemDescription,
+              decoration: const InputDecoration(
+                hintText: 'Enter Item',
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.all(12),
+                contentPadding: EdgeInsets.all(12),
               ),
               onChanged: (value) => currentItemText = value,
               onSubmitted: (value) {
@@ -519,8 +556,10 @@ class _OutfitViewState extends State<OutfitView> {
   /// Adds new item from current description and color to items
   void addItem() {
     if (currentItemText.isEmpty) return;
-    
-    final colorName = ColorHelper().getStringFromColor(currentItemColor, context);
+    // Always store the English key from the color map
+    final colorName = ColorHelper().colorMap.entries
+        .firstWhere((entry) => entry.value == currentItemColor, orElse: () => MapEntry('white', Colors.white))
+        .key;
     final itemToAdd = ClothingItem(
       description: currentItemText,
       colorName: colorName,
@@ -529,79 +568,20 @@ class _OutfitViewState extends State<OutfitView> {
       clothingItems.add(itemToAdd);
       currentItemText = '';
       _itemController.clear();
-      _undoStack.clear(); // Clear redo stack on new action
     });
   }
 
-  /// Gets appropriate text color based on background color
-  Color _getTextColorForBackground(Color backgroundColor) {
-    // Calculate relative luminance
-    final luminance = (0.299 * backgroundColor.red + 0.587 * backgroundColor.green + 0.114 * backgroundColor.blue) / 255;
-    // Use white text for dark backgrounds, black text for light backgrounds
-    return luminance > 0.5 ? Colors.black : Colors.white;
-  }
-
-  Widget _buildColorButton(Color color) {
-    final isSelected = color == currentItemColor;
-    return Semantics(
-      label: 'Color button, ${ColorHelper().getStringFromColor(color, context)}${isSelected ? ", selected" : ""}',
-      button: true,
-      selected: isSelected,
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            currentItemColor = color;
-          });
-        },
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: isSelected ? Colors.black : Colors.transparent,
-              width: 2,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
+  /// Builds 8x2 grid of color buttons to select for new clothing item
   Widget _buildPalette() {
-    final colorHelper = ColorHelper();
-    final colors = [
-      colorHelper.black,
-      colorHelper.darkGrey,
-      colorHelper.lightGrey,
-      colorHelper.white,
-      colorHelper.darkBrown,
-      colorHelper.lightBrown,
-      colorHelper.darkBlue,
-      colorHelper.lightBlue,
-      colorHelper.darkGreen,
-      colorHelper.lightGreen,
-      colorHelper.red,
-      colorHelper.blue,
-      colorHelper.green,
-      colorHelper.yellow,
-      colorHelper.orange,
-      colorHelper.purple,
-      colorHelper.pink,
-      colorHelper.brown,
-      colorHelper.teal,
-      colorHelper.navy,
-      colorHelper.maroon,
-      colorHelper.olive,
-      colorHelper.lime,
-    ];
-
+    // Use all colors defined in ColorHelper
+    final colors = ColorHelper().colorMap.values.toList();
+    
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 8,
+        childAspectRatio: 1,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
       ),
@@ -610,6 +590,32 @@ class _OutfitViewState extends State<OutfitView> {
         final color = colors[index];
         return _buildColorButton(color);
       },
+    );
+  }
+
+  /// Builds a circular color button to select item color
+  Widget _buildColorButton(Color color) {
+    final isSelected = color == currentItemColor;
+    final loc = AppLocalizations.of(context);
+    final englishKey = ColorHelper().getStringFromColor(color, context);
+    final localizedColorName = ColorHelper().getLocalizedColorName(englishKey, context);
+    return Semantics(
+      label: '${loc?.selectColor ?? "Color button"}, $localizedColorName${isSelected ? ", ${loc?.selected ?? "selected"}" : ""}',
+      child: GestureDetector(
+        onTap: () => setState(() => currentItemColor = color),
+        child: Container(
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: isSelected
+                  ? (color == Colors.black ? Colors.yellow : Colors.black)
+                  : (color == Colors.white ? Colors.grey[300]! : Colors.transparent),
+              width: isSelected ? 3 : (color == Colors.white ? 1 : 0),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
