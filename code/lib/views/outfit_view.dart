@@ -100,25 +100,27 @@ class _OutfitViewState extends State<OutfitView> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: Semantics(
-          label: loc?.backToWardrobe,
+          label: loc.backButtonLabel,
+          button: true,
           child: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back,
-              semanticLabel: loc?.backToWardrobe,
+              color: Colors.black,
             ),
             onPressed: () {
               Navigator.pop(context);
             },
-            tooltip: loc?.backToWardrobe,
+            tooltip: loc.backButtonLabel,
           ),
         ),
         actions: [
           Semantics(
-            label: loc?.undo,
+            label: 'Undo',
+            button: true,
             child: IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.undo,
-                semanticLabel: loc?.undo,
+                color: Colors.black,
               ),
               onPressed: clothingItems.isNotEmpty
                   ? () {
@@ -128,15 +130,16 @@ class _OutfitViewState extends State<OutfitView> {
                       });
                     }
                   : null,
-              tooltip: loc?.undo,
+              tooltip: 'Undo',
             ),
           ),
           Semantics(
-            label: loc?.redo,
+            label: 'Redo',
+            button: true,
             child: IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.redo,
-                semanticLabel: loc?.redo,
+                color: Colors.black,
               ),
               onPressed: _undoStack.isNotEmpty
                   ? () {
@@ -146,14 +149,18 @@ class _OutfitViewState extends State<OutfitView> {
                       });
                     }
                   : null,
-              tooltip: loc?.redo,
+              tooltip: 'Redo',
             ),
           ),
           if (widget.outfit.name.isNotEmpty) // Only show delete for existing outfits
             Semantics(
-              label: 'Delete outfit',
+              label: loc.deleteOutfit,
+              button: true,
               child: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.black),
+                icon: const Icon(
+                  Icons.delete,
+                  color: Colors.black,
+                ),
                 onPressed: () => _showDeleteConfirmation(context),
               ),
             ),
@@ -166,16 +173,16 @@ class _OutfitViewState extends State<OutfitView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Outfit title with editable text field
+              // Outfit title with editable text field (no pop-up)
               Row(
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _nameController,
-                      decoration: const InputDecoration(
-                        hintText: 'Outfit Name',
+                      decoration: InputDecoration(
+                        hintText: loc.outfitNameLabel,
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 8),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 8),
                       ),
                       style: const TextStyle(
                         fontSize: 28,
@@ -198,9 +205,9 @@ class _OutfitViewState extends State<OutfitView> {
               const SizedBox(height: 32),
               
               // Clothing Items section
-              const Text(
-                'Clothing Items',
-                style: TextStyle(
+              Text(
+                loc.currentItems,
+                style: const TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
                   fontWeight: FontWeight.w500,
@@ -219,7 +226,8 @@ class _OutfitViewState extends State<OutfitView> {
                 child: SizedBox(
                   width: 200,
                   child: Semantics(
-                    label: 'Save outfit',
+                    label: loc.saveOutfit,
+                    button: true,
                     child: ElevatedButton(
                       onPressed: () => _doSave(context),
                       style: ElevatedButton.styleFrom(
@@ -254,19 +262,20 @@ class _OutfitViewState extends State<OutfitView> {
   /// Parameters:
   /// - context: The build context
   Future<void> _showDeleteConfirmation(BuildContext context) async {
+    final loc = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Outfit'),
-        content: const Text('Are you sure you want to delete this outfit?'),
+        title: Text(loc?.deleteOutfit ?? 'Delete Outfit'),
+        content: Text(loc?.deleteConfirmation ?? 'Are you sure you want to delete this outfit?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(loc?.cancel ?? 'Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(loc?.deleteOutfit ?? 'Delete'),
           ),
         ],
       ),
@@ -286,9 +295,10 @@ class _OutfitViewState extends State<OutfitView> {
   /// Parameters:
   /// - context: The build context
   void _doSave(BuildContext context) async {
+    final loc = AppLocalizations.of(context);
     if (currentOutfitNameText.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter an outfit name')),
+        SnackBar(content: Text(loc?.pleaseEnterOutfitName ?? 'Please enter an outfit name')),
       );
       return;
     }
@@ -325,7 +335,7 @@ class _OutfitViewState extends State<OutfitView> {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save outfit: $e')),
+          SnackBar(content: Text('${loc?.error ?? 'Failed to save outfit'}: $e')),
         );
       }
     }
@@ -354,6 +364,7 @@ class _OutfitViewState extends State<OutfitView> {
   /// - isSelected: Whether this condition is currently selected
   /// Returns: A button widget for selecting a weather condition
   Widget _makeWeatherButton(String condition, bool isSelected) {
+    final loc = AppLocalizations.of(context);
     IconData icon = switch (condition) {
       'Gloomy' => Icons.cloud_outlined,
       'Sunny' => Icons.wb_sunny_outlined,
@@ -361,10 +372,17 @@ class _OutfitViewState extends State<OutfitView> {
       _ => Icons.question_mark
     };
     
-    String label = '$condition weather button, ${isSelected ? "selected" : "not selected"}';
+    String label = switch (condition) {
+      'Gloomy' => loc?.cloudyDay ?? 'Cloudy',
+      'Sunny' => loc?.sunny ?? 'Sunny',
+      'Rainy' => loc?.rainyDay ?? 'Rainy',
+      _ => condition
+    };
     
     return Semantics(
-      label: label,
+      label: '$label weather button, ${isSelected ? "selected" : "not selected"}',
+      button: true,
+      selected: isSelected,
       child: GestureDetector(
         onTap: () {
           setState(() {
@@ -384,6 +402,7 @@ class _OutfitViewState extends State<OutfitView> {
 
   /// Displays outfit's clothing items in a rounded container
   Widget _displayClothingItems() {
+    final loc = AppLocalizations.of(context);
     if (clothingItems.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(20),
@@ -391,10 +410,17 @@ class _OutfitViewState extends State<OutfitView> {
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(16),
         ),
-        child: const Center(
-          child: Text(
-            'No items added yet',
-            style: TextStyle(color: Colors.grey),
+        child: Center(
+          child: Semantics(
+            label: loc?.noItemsInOutfit ?? 'No items in this outfit',
+            excludeSemantics: true,
+            child: Text(
+              loc?.noItemsInOutfit ?? 'No items in this outfit',
+              style: const TextStyle(
+                color: Colors.grey,
+                fontSize: 16,
+              ),
+            ),
           ),
         ),
       );
@@ -418,9 +444,11 @@ class _OutfitViewState extends State<OutfitView> {
 
   /// Builds a clothing item chip
   Widget _buildClothingItemChip(ClothingItem item) {
-    final color = ColorHelper().getColorFromString(item.colorName);
+    final color = ColorHelper().getColorFromString(item.colorName, context);
+    final loc = AppLocalizations.of(context);
+    final localizedColorName = ColorHelper().getLocalizedColorName(item.colorName, context);
     return Semantics(
-      label: 'Clothing item: \\${item.description}, color: \\${item.colorName}',
+      label: '${loc?.addClothingItem ?? "Prenda"}: ${item.description}, ${loc?.color ?? "Color"}: $localizedColorName',
       child: GestureDetector(
         onTap: () {
           setState(() {
@@ -466,6 +494,7 @@ class _OutfitViewState extends State<OutfitView> {
 
   /// Creates tile for creating a new clothing item
   Widget _createItemTile() {
+    final loc = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -474,19 +503,22 @@ class _OutfitViewState extends State<OutfitView> {
       ),
       child: Column(
         children: [
-          TextField(
-            controller: _itemController,
-            decoration: const InputDecoration(
-              hintText: 'Enter Item',
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.all(12),
+          Semantics(
+            label: loc?.addClothingItem ?? 'Add clothing item',
+            child: TextField(
+              controller: _itemController,
+              decoration: const InputDecoration(
+                hintText: 'Enter Item',
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.all(12),
+              ),
+              onChanged: (value) => currentItemText = value,
+              onSubmitted: (value) {
+                if (value.isNotEmpty) {
+                  addItem();
+                }
+              },
             ),
-            onChanged: (value) => currentItemText = value,
-            onSubmitted: (value) {
-              if (value.isNotEmpty) {
-                addItem();
-              }
-            },
           ),
           const SizedBox(height: 16),
           _buildPalette(),
@@ -498,17 +530,21 @@ class _OutfitViewState extends State<OutfitView> {
   /// Adds new item from current description and color to items
   void addItem() {
     if (currentItemText.isEmpty) return;
+    // Get the localized color name for storage
+    final loc = AppLocalizations.of(context);
+    final englishKey = ColorHelper().colorMap.entries
+        .firstWhere((entry) => entry.value == currentItemColor, orElse: () => MapEntry('white', Colors.white))
+        .key;
+    final localizedColorName = ColorHelper().getLocalizedColorName(englishKey, context);
     
-    final colorName = ColorHelper().getStringFromColor(currentItemColor);
     final itemToAdd = ClothingItem(
       description: currentItemText,
-      colorName: colorName,
+      colorName: localizedColorName, // Store the localized color name
     );
     setState(() {
       clothingItems.add(itemToAdd);
       currentItemText = '';
       _itemController.clear();
-      _undoStack.clear(); // Clear redo stack on new action
     });
   }
 
@@ -516,6 +552,7 @@ class _OutfitViewState extends State<OutfitView> {
   Widget _buildPalette() {
     // Use all colors defined in ColorHelper
     final colors = ColorHelper().colorMap.values.toList();
+    
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -536,8 +573,11 @@ class _OutfitViewState extends State<OutfitView> {
   /// Builds a circular color button to select item color
   Widget _buildColorButton(Color color) {
     final isSelected = color == currentItemColor;
+    final loc = AppLocalizations.of(context);
+    final englishKey = ColorHelper().getStringFromColor(color, context);
+    final localizedColorName = ColorHelper().getLocalizedColorName(englishKey, context);
     return Semantics(
-      label: 'Color button, \\${ColorHelper().getStringFromColor(color)}\\${isSelected ? ", selected" : ""}',
+      label: '${loc?.selectColor ?? "Color button"}, $localizedColorName${isSelected ? ", ${loc?.selected ?? "selected"}" : ""}',
       child: GestureDetector(
         onTap: () => setState(() => currentItemColor = color),
         child: Container(

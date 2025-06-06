@@ -76,12 +76,35 @@ class CustomTopBar extends StatelessWidget {
                   const SizedBox(width: 8),
                   Semantics(
                     label: loc?.todaysWeather(_localizedWeatherLabel(context, weather)),
-                    child: Text(
-                      _localizedWeatherLabel(context, weather),
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: textColor,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          // Calculate if text would overflow
+                          final textSpan = TextSpan(
+                            text: _localizedWeatherLabel(context, weather),
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                          final textPainter = TextPainter(
+                            text: textSpan,
+                            textDirection: TextDirection.ltr,
+                          )..layout();
+                          
+                          // If text would overflow, use smaller font size
+                          final fontSize = textPainter.width > constraints.maxWidth ? 10.0 : 28.0;
+                          
+                          return Text(
+                            _localizedWeatherLabel(context, weather),
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -204,21 +227,21 @@ class CustomTopBar extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Select Language'),
+        title: Text(loc?.selectLanguage ?? 'Select Language'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               title: const Text('English'),
               onTap: () {
-                _changeLanguage(context, const Locale('en'));
+                context.read<LocaleChangeNotifier>().setLocale(const Locale('en'));
                 Navigator.pop(context);
               },
             ),
             ListTile(
               title: const Text('Español'),
               onTap: () {
-                _changeLanguage(context, const Locale('es'));
+                context.read<LocaleChangeNotifier>().setLocale(const Locale('es'));
                 Navigator.pop(context);
               },
             ),
@@ -226,10 +249,6 @@ class CustomTopBar extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _changeLanguage(BuildContext context, Locale locale) {
-    context.read<LocaleChangeNotifier>().setLocale(locale);
   }
 
   /// Gets the color for the active filter button based on weather condition.

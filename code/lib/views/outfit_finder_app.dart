@@ -86,57 +86,47 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
         _outfitsFuture = widget.venues.getAllOutfits();
       });
     }
-    return MaterialApp(
-      title: 'Outfit Finder',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Scaffold(
-        body: FutureBuilder<List<Outfit>>(
-          future: _outfitsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return Center(child: Text('Error: \\${snapshot.error}'));
-            }
-            if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(child: Text('No outfits found'));
-            }
+    return Scaffold(
+      body: FutureBuilder<List<Outfit>>(
+        future: _outfitsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No outfits found'));
+          }
 
-            final filteredOutfits = _filterOutfits(snapshot.data!);
-            return Column(
-              children: [
-                CustomTopBar(
-                  onFilterPressed: () {
-                    setState(() {
-                      _isFilterActive = !_isFilterActive;
-                    });
-                  },
-                  onWeatherFilterSelected: (condition) {
-                    setState(() {
-                      _selectedWeatherFilter = condition;
-                    });
-                  },
-                  isFilterActive: _isFilterActive,
-                  onAddOutfit: refreshOutfits,
+          final filteredOutfits = _filterOutfits(snapshot.data!);
+          return Column(
+            children: [
+              CustomTopBar(
+                onFilterPressed: () {
+                  setState(() {
+                    _isFilterActive = !_isFilterActive;
+                  });
+                },
+                onWeatherFilterSelected: (condition) {
+                  setState(() {
+                    _selectedWeatherFilter = condition;
+                  });
+                },
+                isFilterActive: _isFilterActive,
+                onAddOutfit: refreshOutfits,
+                onRefresh: refreshOutfits,
+              ),
+              Expanded(
+                child: WeatherFilter(
+                  outfits: filteredOutfits,
                   onRefresh: refreshOutfits,
                 ),
-                Expanded(
-                  child: WeatherFilter(
-                    outfits: filteredOutfits,
-                    onRefresh: refreshOutfits,
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-        // Add a WillPopScope to always reload outfits when returning to this view
+              ),
+            ],
+          );
+        },
       ),
     );
   }
