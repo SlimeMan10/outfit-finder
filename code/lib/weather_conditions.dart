@@ -1,22 +1,30 @@
-/// Different weather conditions used in the app
-/// - unknown: Weather not determined
-/// - gloomy: Cloudy weather
-/// - sunny: Clear weather
-/// - rainy: Rainy weather
-/// - slightlyRainy: Slightly rainy weather
+/// Enum representing different weather conditions used throughout the application.
+/// 
+/// This enum is used to categorize and display weather states in the UI
+/// and for weather-based outfit recommendations.
+/// 
+/// Values:
+/// - unknown: Default state when weather cannot be determined
+/// - sunny: Clear, bright weather conditions
+/// - slightlyCloudy: Partially cloudy conditions
+/// - gloomy: Overcast or heavily cloudy conditions
+/// - rainy: Precipitation conditions
 enum WeatherCondition {
-  /// Unknown weather condition
+  /// Default state when weather cannot be determined
   unknown,
-  /// Sunny weather condition
+  /// Clear, bright weather conditions
   sunny,
-  /// Slightly cloudy weather condition
+  /// Partially cloudy conditions
   slightlyCloudy,
-  /// Gloomy weather condition
+  /// Overcast or heavily cloudy conditions
   gloomy,
-  /// Rainy weather condition
+  /// Precipitation conditions
   rainy;
 
-  /// use WeatherConditions.<condition>.toString() to get string representation
+  /// Converts the weather condition to a human-readable string.
+  /// 
+  /// Returns: A string representation of the weather condition
+  /// suitable for display in the UI
   @override
   String toString() {
     switch (this) {

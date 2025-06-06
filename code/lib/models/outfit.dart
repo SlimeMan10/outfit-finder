@@ -1,3 +1,7 @@
+/// Represents an outfit in the wardrobe system.
+/// This class manages a collection of clothing items and their weather suitability.
+/// 
+/// The class is annotated with @collection to enable Isar database storage.
 import 'clothing_item.dart';
 import 'package:isar/isar.dart';
 import 'package:outfit_finder/helper/isar_helper.dart';
@@ -5,32 +9,33 @@ import 'package:outfit_finder/helper/isar_helper.dart';
 
 part 'outfit.g.dart';
 
-// represents an inputted outfit in wardrobe
+/// Unique identifier for the outfit in the database
 @collection
 class Outfit {
-  // id of unique outfit entry in wardrobe
   Id id = Isar.autoIncrement;
 
-  /// name of the outfit
+  /// Name of the outfit (e.g., "Summer Casual", "Winter Formal")
   final String name;
 
-  // whether outfit is wearable for gloomy weather
+  /// Indicates if the outfit is suitable for gloomy/overcast weather
   final bool isForGloomy;
-  // whether outfit is wearable for sunny weather
+  
+  /// Indicates if the outfit is suitable for sunny weather
   final bool isForSunny;
-  // whether outfit is wearable for rainy weather
+  
+  /// Indicates if the outfit is suitable for rainy weather
   final bool isForRainy;
 
-  // clothing items comprising outfit
+  /// Collection of clothing items that make up this outfit
   final IsarLinks<ClothingItem> clothingItems = IsarLinks<ClothingItem>();
 
-  /// Constructs Outfit with optional named params if given
-  /// (all bools default to false)
+  /// Creates a new Outfit instance with specified weather conditions.
+  /// 
   /// Parameters:
-  ///   - id: unique outfit entry id, increments automatically by 1
-  ///   - isForGloomy: whether outfit is for gloomy weather
-  ///   - isForSunny: whether outfit is for sunny weather
-  ///   - isForRainy: whether outfit is for rainy weather
+  /// - name: The name of the outfit (defaults to empty string)
+  /// - isForGloomy: Whether the outfit is suitable for gloomy weather (defaults to false)
+  /// - isForSunny: Whether the outfit is suitable for sunny weather (defaults to false)
+  /// - isForRainy: Whether the outfit is suitable for rainy weather (defaults to false)
   Outfit({
     this.name = '',
     this.isForGloomy = false,
@@ -38,13 +43,11 @@ class Outfit {
     this.isForRainy = false,
   });
 
-  /// Adds given clothing item to outfit
-  /// (does not enforce uniqueness of items)
+  /// Adds a clothing item to this outfit and persists it to the database.
+  /// 
   /// Parameters:
-  ///   - clothingItem: The clothing item to add
-  ///   - isar: The Isar database instance
-  Future<void> addItem(
-      {required ClothingItem clothingItem}) async {
+  /// - clothingItem: The clothing item to add to the outfit
+  Future<void> addItem({required ClothingItem clothingItem}) async {
     await isar.writeTxn(() async {
       // Save the clothing item to database first
       await isar.collection<ClothingItem>().put(clothingItem);
@@ -55,31 +58,32 @@ class Outfit {
     });
   }
 
-  /// Deletes given clothing item if in outfit
+  /// Removes a clothing item from this outfit.
+  /// 
   /// Parameters:
-  ///   - itemToDelete: The clothing item to delete
-  ///   - isar: The Isar database instance
-  /// Returns: whether item was deleted
-  Future<bool> deleteItem(
-      {required ClothingItem itemToDelete}) async {
+  /// - itemToDelete: The clothing item to remove from the outfit
+  /// Returns: true if the item was successfully removed
+  Future<bool> deleteItem({required ClothingItem itemToDelete}) async {
     await isar.writeTxn(() async {
       clothingItems.remove(itemToDelete);
       await clothingItems.save();
     });
-
-    /// we might need to check if it was deleted
     return true;
   }
 
-  /// Gets a shallow copy of clothing items
-  /// Returns: List of clothing items in this outfit
+  /// Retrieves all clothing items in this outfit.
+  /// 
+  /// Returns: A list of all clothing items in the outfit
   Future<List<ClothingItem>> getClothingItems() async {
     await clothingItems.load();
     return clothingItems.toList();
   }
 
-  /// Creates a dummy outfit with a white t-shirt, blue jeans, and white shoes
-  /// suitable for sunny weather
+  /// Creates a sample outfit for testing purposes.
+  /// The outfit consists of a white t-shirt, blue jeans, and white shoes,
+  /// suitable for sunny weather.
+  /// 
+  /// Returns: A new Outfit instance with sample clothing items
   static Outfit createDummyOutfit() {
     final outfit = Outfit(
       name: 'Summer Casual',

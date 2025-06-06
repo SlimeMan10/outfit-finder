@@ -1,21 +1,32 @@
+/// A card widget that displays an outfit's details.
+/// This widget shows the outfit name, weather conditions, and clothing items
+/// in a visually appealing card format.
 import 'package:flutter/material.dart';
 import 'package:outfit_finder/models/outfit.dart';
 import 'package:outfit_finder/views/outfit_view.dart';
 import 'package:outfit_finder/weather_conditions.dart';
 import 'package:outfit_finder/helper/color_helper.dart';
 
-// widget card to display each outfit
+/// A card widget that displays an outfit's information.
 class OutfitCard extends StatelessWidget {
-  // outfit to display
+  /// The outfit to display in the card
   final Outfit outfit;
+  
+  /// The current weather condition
   final WeatherCondition currentWeather;
 
-  // constructs an OutfitCard with given outfit
-  const OutfitCard(
-      {super.key, required this.outfit, required this.currentWeather});
+  /// Creates a new OutfitCard instance.
+  /// 
+  /// Parameters:
+  /// - outfit: The outfit to display
+  /// - currentWeather: The current weather condition
+  const OutfitCard({
+    super.key, 
+    required this.outfit, 
+    required this.currentWeather
+  });
 
-  // builds outfit card displaying
-  // outfit name, weather tags, clothing items, and edit button
+  /// Builds the outfit card with name, weather tags, and clothing items.
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -26,6 +37,7 @@ class OutfitCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Outfit name and edit button row
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -48,8 +60,8 @@ class OutfitCard extends StatelessWidget {
             const SizedBox(height: 4),
             _makeWeatherRow(),
             const SizedBox(height: 12),
+            // Clothing items list
             FutureBuilder<List<dynamic>>(
-              // dynamic for ClothingItem
               future: outfit.getClothingItems(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -76,16 +88,23 @@ class OutfitCard extends StatelessWidget {
     );
   }
 
-  // Asynchronously navigates to given outfit view to edit and
-  // navigates back to all outfits
+  /// Navigates to the outfit editing view.
+  /// 
+  /// Parameters:
+  /// - context: The build context
+  /// - outfit: The outfit to edit
   Future<void> _navigateToOutfit(BuildContext context, Outfit outfit) async {
     await Navigator.push(context,
         MaterialPageRoute(builder: (context) => OutfitView(outfit: outfit)));
   }
 
-  // makes row of weather tags for outfit
+  /// Creates a row of weather condition tags for the outfit.
+  /// 
+  /// Returns: A row containing icons and labels for each applicable weather condition
   Widget _makeWeatherRow() {
     List<Widget> weatherTags = [];
+    
+    // Add sunny weather tag if applicable
     if (outfit.isForSunny) {
       weatherTags.addAll([
         const Icon(Icons.wb_sunny, size: 18),
@@ -95,6 +114,7 @@ class OutfitCard extends StatelessWidget {
       ]);
     }
 
+    // Add rainy weather tag if applicable
     if (outfit.isForRainy) {
       weatherTags.addAll([
         const Icon(Icons.beach_access, size: 18),
@@ -104,6 +124,7 @@ class OutfitCard extends StatelessWidget {
       ]);
     }
 
+    // Add gloomy weather tag if applicable
     if (outfit.isForRainy) {
       weatherTags.addAll([
         const Icon(Icons.cloud, size: 18),
@@ -113,9 +134,14 @@ class OutfitCard extends StatelessWidget {
       ]);
     }
 
-    return Row ( children: weatherTags);
+    return Row(children: weatherTags);
   }
 
+  /// Creates a chip widget for a clothing item.
+  /// 
+  /// Parameters:
+  /// - item: The clothing item to display
+  /// Returns: A chip widget showing the item's description and color
   Widget _clothingChip(dynamic item) {
     final colorHelper = ColorHelper();
     final color = colorHelper.getColorFromString(item.colorName);
