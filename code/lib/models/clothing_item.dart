@@ -1,8 +1,8 @@
-/// Represents a clothing item in the outfit finder application.
-/// This class is used to store information about individual pieces of clothing,
-/// including their description and color.
-/// 
-/// The class is annotated with @collection to enable Isar database storage.
+// Represents a clothing item in the outfit finder application.
+// This class is used to store information about individual pieces of clothing,
+// including their description and color.
+// 
+// The class is annotated with @collection to enable Isar database storage.
 import 'package:isar/isar.dart';
 
 part 'clothing_item.g.dart';

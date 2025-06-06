@@ -1,5 +1,5 @@
-/// Manages the application's database operations for outfits and clothing items.
-/// This provider handles CRUD operations for outfits and clothing items using Isar database.
+// Manages the application's database operations for outfits and clothing items.
+// This provider handles CRUD operations for outfits and clothing items using Isar database.
 import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
 import 'package:outfit_finder/helper/isar_helper.dart';

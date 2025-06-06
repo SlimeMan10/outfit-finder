@@ -1,6 +1,6 @@
-/// Main entry point for the Outfit Finder application.
-/// This file handles initialization of the app, including database setup,
-/// provider configuration, and app launch.
+//  Main entry point for the Outfit Finder application.
+// This file handles initialization of the app, including database setup,
+// provider configuration, and app launch.
 
 import 'dart:async';
 import 'package:flutter/material.dart';

@@ -1,7 +1,7 @@
-/// Represents an outfit in the wardrobe system.
-/// This class manages a collection of clothing items and their weather suitability.
-/// 
-/// The class is annotated with @collection to enable Isar database storage.
+// Represents an outfit in the wardrobe system.
+// This class manages a collection of clothing items and their weather suitability.
+//
+// The class is annotated with @collection to enable Isar database storage.
 import 'clothing_item.dart';
 import 'package:isar/isar.dart';
 import 'package:outfit_finder/helper/isar_helper.dart';

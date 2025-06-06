@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import '../models/clothing_item.dart';
 import '../helper/color_helper.dart';
 
+// Widget for the displaying a clothing item
 class ClothingItemWidget extends StatelessWidget {
+  // item to display
   final ClothingItem item;
+  // constructs a ClothingItemWidget with given item
+  const ClothingItemWidget({super.key, required this.item});
 
-  ClothingItemWidget({super.key, required this.item});
-
+  // builds a rounded tile widget for clothing item
+  // shows item description and color
   @override
   Widget build(BuildContext context) {
     final colorHelper = ColorHelper();
@@ -20,7 +24,8 @@ class ClothingItemWidget extends StatelessWidget {
       child: Text(
         item.description,
         style: TextStyle(
-          color: _getTextColorForBackground(colorHelper.getColorFromString(item.colorName, context)),
+          color: _getTextColorForBackground(
+              colorHelper.getColorFromString(item.colorName, context)),
           fontSize: 16,
         ),
       ),
