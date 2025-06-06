@@ -382,8 +382,9 @@ class _OutfitViewState extends State<OutfitView> {
 
   /// Builds a clothing item chip
   Widget _buildClothingItemChip(ClothingItem item) {
+    final color = ColorHelper().getColorFromString(item.colorName);
     return Semantics(
-      label: 'Clothing item: ${item.description}, color: ${item.colorName}',
+      label: 'Clothing item: \\${item.description}, color: \\${item.colorName}',
       child: GestureDetector(
         onTap: () {
           setState(() {
@@ -412,8 +413,12 @@ class _OutfitViewState extends State<OutfitView> {
                 width: 16,
                 height: 16,
                 decoration: BoxDecoration(
-                  color: ColorHelper().getColorFromString(item.colorName),
+                  color: color,
                   shape: BoxShape.circle,
+                  border: Border.all(
+                    color: color == Colors.white ? Colors.grey : Colors.transparent,
+                    width: color == Colors.white ? 2 : 0,
+                  ),
                 ),
               ),
             ],
@@ -472,26 +477,8 @@ class _OutfitViewState extends State<OutfitView> {
 
   /// Builds 8x2 grid of color buttons to select for new clothing item
   Widget _buildPalette() {
-    // Getting predefined set of colors for items - arranged to match mockup
-    final colors = [
-      Colors.black,
-      Colors.grey[600]!,
-      Colors.grey[400]!,
-      Colors.white,
-      Colors.brown[700]!,
-      Colors.brown[200]!,
-      Colors.blue[700]!,
-      Colors.blue[200]!,
-      Colors.green[700]!,
-      Colors.green[400]!,
-      Colors.red,
-      Colors.orange,
-      Colors.yellow,
-      Colors.cyan,
-      Colors.purple,
-      Colors.pink,
-    ];
-    
+    // Use all colors defined in ColorHelper
+    final colors = ColorHelper().colorMap.values.toList();
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -513,7 +500,7 @@ class _OutfitViewState extends State<OutfitView> {
   Widget _buildColorButton(Color color) {
     final isSelected = color == currentItemColor;
     return Semantics(
-      label: 'Color button, ${ColorHelper().getStringFromColor(color)}${isSelected ? ", selected" : ""}',
+      label: 'Color button, \\${ColorHelper().getStringFromColor(color)}\\${isSelected ? ", selected" : ""}',
       child: GestureDetector(
         onTap: () => setState(() => currentItemColor = color),
         child: Container(
@@ -521,7 +508,9 @@ class _OutfitViewState extends State<OutfitView> {
             color: color,
             shape: BoxShape.circle,
             border: Border.all(
-              color: isSelected ? Colors.black : (color == Colors.white ? Colors.grey[300]! : Colors.transparent),
+              color: isSelected
+                  ? (color == Colors.black ? Colors.yellow : Colors.black)
+                  : (color == Colors.white ? Colors.grey[300]! : Colors.transparent),
               width: isSelected ? 3 : (color == Colors.white ? 1 : 0),
             ),
           ),
