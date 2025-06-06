@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:outfit_finder/models/outfit.dart';
-import 'package:outfit_finder/models/clothing_item.dart';
 import 'package:outfit_finder/weather_conditions.dart';
 import 'package:provider/provider.dart';
 import 'package:outfit_finder/providers/weather_provider.dart';

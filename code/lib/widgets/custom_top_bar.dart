@@ -17,7 +17,6 @@ class CustomTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final weather = context.watch<WeatherProvider>().condition;
-    final temp = context.watch<WeatherProvider>().tempInFahrenheit;
     final lowTemp = context.watch<WeatherProvider>().lowTempFahrenheit;
     final highTemp = context.watch<WeatherProvider>().highTempFahrenheit;
     return Container(

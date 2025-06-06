@@ -99,7 +99,7 @@ class _OutfitViewState extends State<OutfitView> {
               ),
               const SizedBox(height: 16),
               // Weather Conditions Section Header with Icon
-              Row(
+              const Row(
                 children: [
                   Icon(Icons.wb_sunny, color: Colors.orange),
                   SizedBox(width: 8),
@@ -110,7 +110,7 @@ class _OutfitViewState extends State<OutfitView> {
               _displayWeatherIcons(),
               const SizedBox(height: 24),
               // Add Clothing Item Section Header with Icon
-              Row(
+              const Row(
                 children: [
                   Icon(Icons.add_circle_outline, color: Colors.green),
                   SizedBox(width: 8),
@@ -121,7 +121,7 @@ class _OutfitViewState extends State<OutfitView> {
               _createItemTile(),
               const SizedBox(height: 24),
               // Current Items Section Header with Icon
-              Row(
+              const Row(
                 children: [
                   Icon(Icons.checkroom, color: Colors.blue),
                   SizedBox(width: 8),
@@ -136,7 +136,7 @@ class _OutfitViewState extends State<OutfitView> {
                 child: Semantics(
                   label: 'Save outfit',
                   child: ElevatedButton.icon(
-                    icon: Icon(Icons.save),
+                    icon: const Icon(Icons.save),
                     label: const Text('Save Outfit'),
                     onPressed: () => _doSave(context),
                     style: ElevatedButton.styleFrom(
@@ -243,7 +243,7 @@ class _OutfitViewState extends State<OutfitView> {
       label: '$condition weather button, ${isSelected ? "selected" : "not selected"}',
       child: Container(
         decoration: BoxDecoration(
-          color: isSelected ? selectedColor.withOpacity(0.15) : Colors.transparent,
+          color: isSelected ? selectedColor.withValues(alpha: .15) : Colors.transparent,
           border: Border.all(
             color: isSelected ? selectedColor : Colors.grey.shade300,
             width: isSelected ? 2 : 1,
@@ -349,7 +349,7 @@ class _OutfitViewState extends State<OutfitView> {
             onChanged: (value) => currentItemText = value,
           ),
           const SizedBox(height: 16),
-          Row(
+          const Row(
             children: [
               Icon(Icons.palette, color: Colors.purple),
               SizedBox(width: 8),
@@ -364,7 +364,7 @@ class _OutfitViewState extends State<OutfitView> {
             child: Semantics(
               label: 'Add clothing item',
               child: ElevatedButton.icon(
-                icon: Icon(Icons.add),
+                icon: const Icon(Icons.add),
                 label: const Text('Add Item'),
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
@@ -441,7 +441,7 @@ class _OutfitViewState extends State<OutfitView> {
               width: 2,
             ),
             boxShadow: isSelected
-                ? [BoxShadow(color: Colors.black26, blurRadius: 4, spreadRadius: 1)]
+                ? [const BoxShadow(color: Colors.black26, blurRadius: 4, spreadRadius: 1)]
                 : [],
           ),
           width: 32,

@@ -51,7 +51,7 @@ class DatabaseProvider extends ChangeNotifier {
 
   Future<void> deleteOutfit(Outfit outfit) async {
     await isar.writeTxn(() async {
-      await isar.outfits.delete(outfit.id!);
+      await isar.outfits.delete(outfit.id);
     });
     await _loadOutfits();
     notifyListeners();
@@ -59,7 +59,7 @@ class DatabaseProvider extends ChangeNotifier {
 
   Future<void> deleteClothingItem(ClothingItem item) async {
     await isar.writeTxn(() async {
-      await isar.clothingItems.delete(item.id!);
+      await isar.clothingItems.delete(item.id);
     });
     await _loadClothingItems();
     notifyListeners();

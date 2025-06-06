@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:outfit_finder/providers/position_provider.dart';
 import 'package:outfit_finder/providers/weather_provider.dart';
 import 'package:outfit_finder/providers/database_provider.dart';
