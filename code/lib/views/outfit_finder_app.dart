@@ -126,13 +126,11 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            print('Main App: Add button pressed');
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => OutfitView(outfit: Outfit(name: '')),
               ),
             ).then((_) {
-              print('Main App: Refreshing outfit list');
               setState(() {
                 _outfitsFuture = widget.venues.getAllOutfits();
               });

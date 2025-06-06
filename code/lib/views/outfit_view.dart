@@ -22,10 +22,7 @@ class OutfitView extends StatefulWidget {
   const OutfitView({super.key, required this.outfit});
 
   @override
-  State<OutfitView> createState() {
-    print('OutfitView: Creating state');
-    return _OutfitViewState();
-  }
+  State<OutfitView> createState() => _OutfitViewState();
 }
 
 /// State class for the OutfitView widget.
@@ -58,7 +55,6 @@ class _OutfitViewState extends State<OutfitView> {
   /// Initializes the outfit view state with values from the provided outfit
   @override
   void initState() {
-    print('OutfitView: Initializing state');
     super.initState();
     currentOutfitNameText = widget.outfit.name;
     clothingItems = widget.outfit.clothingItems.toList();
@@ -70,7 +66,6 @@ class _OutfitViewState extends State<OutfitView> {
   /// Builds the outfit editing interface
   @override
   Widget build(BuildContext context) {
-    print('OutfitView: Building widget');
     final loc = AppLocalizations.of(context);
     if (loc == null) return const SizedBox.shrink();
     return Scaffold(

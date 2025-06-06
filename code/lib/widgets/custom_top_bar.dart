@@ -130,7 +130,6 @@ class CustomTopBar extends StatelessWidget {
                         color: textColor,
                       ),
                       onPressed: () {
-                        print('CustomTopBar: Add button pressed');
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => OutfitView(outfit: Outfit(name: '')),
