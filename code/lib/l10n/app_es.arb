@@ -31,5 +31,10 @@
   "any": "Cualquiera",
   "loadingItems": "Cargando prendas...",
   "noItemsInOutfit": "No hay prendas en este atuendo",
-  "partlyCloudy": "Parcialmente nublado"
+  "partlyCloudy": "Parcialmente nublado",
+  "addNewOutfit": "Agregar nuevo atuendo",
+  "changeLanguage": "Cambiar idioma",
+  "selectLanguage": "Seleccionar idioma",
+  "undo": "Deshacer",
+  "redo": "Rehacer"
 }
