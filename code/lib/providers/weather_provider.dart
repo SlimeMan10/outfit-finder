@@ -1,3 +1,6 @@
+/// Manages weather data and updates for the application.
+/// This provider handles fetching, storing, and updating weather information
+/// including temperature and conditions.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -15,7 +18,7 @@ class WeatherProvider extends ChangeNotifier {
   /// Low temperature for the day in Fahrenheit
   int _lowTempInFahrenheit = 0;
 
-  /// Current weather condition
+  /// Current weather condition (e.g., sunny, rainy, gloomy)
   WeatherCondition _condition = WeatherCondition.unknown;
 
   /// Weather checker instance

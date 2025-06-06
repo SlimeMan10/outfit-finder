@@ -1,3 +1,7 @@
+/// Main entry point for the Outfit Finder application.
+/// This file handles initialization of the app, including database setup,
+/// provider configuration, and app launch.
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:outfit_finder/providers/position_provider.dart';
@@ -7,9 +11,14 @@ import 'package:outfit_finder/views/outfit_finder_app.dart';
 import 'package:provider/provider.dart';
 import 'package:outfit_finder/helper/isar_helper.dart';
 
-/// Initialize the database and load data
-/// This is an asynchronous call since we're going to a secondary
-/// storage resource to get the data.
+/// Initializes the database and loads initial data.
+/// 
+/// This function performs the following tasks:
+/// 1. Initializes the Isar database
+/// 2. Creates a new DatabaseProvider instance
+/// 3. Loads existing data from the database
+/// 
+/// Returns: A configured DatabaseProvider instance ready for use
 Future<DatabaseProvider> initializeDatabase() async {
   await initializeIsar();
   final dbProvider = DatabaseProvider();
@@ -17,29 +26,36 @@ Future<DatabaseProvider> initializeDatabase() async {
   return dbProvider;
 }
 
+/// Main function that bootstraps the application.
+/// 
+/// This function:
+/// 1. Initializes Flutter bindings
+/// 2. Sets up the database with sample data
+/// 3. Configures providers for state management
+/// 4. Launches the main application widget
 void main() async {
-  // Ensure that the flutter framework is initialized.
+  // Ensure that the flutter framework is initialized before any platform-specific code
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize database
+  // Initialize the local database
   await initializeIsar();
   
-  // Create providers
+  // Create and configure the database provider
   final dbProvider = DatabaseProvider();
   
-  // Clear existing data and add sample data
+  // Reset database and populate with sample data for testing
   await dbProvider.clearDatabase();
   await dbProvider.addSampleOutfits();
   
+  // Launch the app with configured providers
   runApp(
     MultiProvider(
       providers: [
-        // The PositionProvider is used to get the current location of the user
-        // and to update the location when the user moves.
-        // The WeatherProvider is used to get the current weather information
-        // and to update the weather information when the user moves.
+        // Provider for managing user location and updates
         ChangeNotifierProvider(create: (context) => PositionProvider()),
+        // Provider for managing weather data and updates
         ChangeNotifierProvider(create: (context) => WeatherProvider()),
+        // Provider for managing database operations
         ChangeNotifierProvider.value(value: dbProvider),
       ],
       child: OutFitFinderApp(venues: dbProvider),

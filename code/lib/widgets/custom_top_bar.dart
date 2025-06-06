@@ -1,12 +1,28 @@
+/// A custom top bar widget that displays weather information and filtering controls.
+/// This widget shows the current weather condition, temperature range, and provides
+/// filtering functionality for outfits.
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:outfit_finder/weather_conditions.dart';
 import 'package:outfit_finder/providers/weather_provider.dart';
 
+/// A custom top bar widget that displays weather information and controls.
 class CustomTopBar extends StatelessWidget {
+  /// Callback function triggered when the filter button is pressed
   final VoidCallback onFilterPressed;
+  
+  /// Callback function triggered when a weather filter is selected
   final void Function(WeatherCondition?) onWeatherFilterSelected;
+  
+  /// Flag indicating if the weather filter is currently active
   final bool isFilterActive;
+
+  /// Creates a new CustomTopBar instance.
+  /// 
+  /// Parameters:
+  /// - onFilterPressed: Callback for filter button press
+  /// - onWeatherFilterSelected: Callback for weather filter selection
+  /// - isFilterActive: Current state of the filter
   const CustomTopBar({
     super.key, 
     required this.onFilterPressed, 
@@ -16,9 +32,11 @@ class CustomTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get current weather information from provider
     final weather = context.watch<WeatherProvider>().condition;
     final lowTemp = context.watch<WeatherProvider>().lowTempFahrenheit;
     final highTemp = context.watch<WeatherProvider>().highTempFahrenheit;
+    
     return Container(
       padding: const EdgeInsets.only(top: 48, left: 16, right: 16, bottom: 8),
       decoration: BoxDecoration(
@@ -27,10 +45,12 @@ class CustomTopBar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Weather condition and filter controls row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Weather condition display
               Row(
                 children: [
                   Icon(_getWeatherIcon(weather), size: 32),
@@ -41,6 +61,7 @@ class CustomTopBar extends StatelessWidget {
                   ),
                 ],
               ),
+              // Filter and add buttons
               Row(
                 children: [
                   Container(
@@ -75,6 +96,7 @@ class CustomTopBar extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
+          // Temperature range display
           Row(
             children: [
               Text(
@@ -104,6 +126,11 @@ class CustomTopBar extends StatelessWidget {
     );
   }
 
+  /// Gets the color for the active filter button based on weather condition.
+  /// 
+  /// Parameters:
+  /// - condition: The current weather condition
+  /// Returns: A color that provides good contrast against the weather gradient
   Color _getFilterActiveColor(WeatherCondition condition) {
     switch (condition) {
       case WeatherCondition.sunny:
@@ -119,6 +146,11 @@ class CustomTopBar extends StatelessWidget {
     }
   }
 
+  /// Gets the appropriate weather icon for the current condition.
+  /// 
+  /// Parameters:
+  /// - condition: The current weather condition
+  /// Returns: An IconData representing the weather condition
   IconData _getWeatherIcon(WeatherCondition condition) {
     switch (condition) {
       case WeatherCondition.sunny:
@@ -134,6 +166,11 @@ class CustomTopBar extends StatelessWidget {
     }
   }
 
+  /// Gets the gradient background for the top bar based on weather condition.
+  /// 
+  /// Parameters:
+  /// - condition: The current weather condition
+  /// Returns: A LinearGradient appropriate for the weather condition
   LinearGradient _getWeatherGradient(WeatherCondition condition) {
     switch (condition) {
       case WeatherCondition.sunny:

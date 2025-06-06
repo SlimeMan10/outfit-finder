@@ -1,3 +1,6 @@
+/// A view for editing or creating outfits.
+/// This widget provides a form interface for managing outfit details,
+/// including name, weather conditions, and clothing items.
 import 'package:outfit_finder/models/clothing_item.dart';
 import 'package:outfit_finder/models/outfit.dart';
 import 'package:flutter/material.dart';
@@ -6,43 +9,49 @@ import 'package:outfit_finder/providers/database_provider.dart';
 import 'package:outfit_finder/widgets/clothing_item_widget.dart';
 import 'package:provider/provider.dart';
 
-// individual outfit view for editing or creating a new outfit
+/// Widget for editing or creating an outfit.
 class OutfitView extends StatefulWidget {
-  // outfit to edit/create
+  /// The outfit to be edited or used as a template for creation
   final Outfit outfit;
 
-  // constructs a OutfitView with given outfit and database provider
+  /// Creates a new OutfitView instance.
+  /// 
+  /// Parameters:
+  /// - outfit: The outfit to edit or use as a template
   const OutfitView({super.key, required this.outfit});
 
   @override
   State<OutfitView> createState() => _OutfitViewState();
 }
 
-// state of OutfitView
+/// State class for the OutfitView widget.
+/// Manages the form state and outfit editing functionality.
 class _OutfitViewState extends State<OutfitView> {
+  /// Form key for validation
   final _formKey = GlobalKey<FormState>();
-  // Entered item description
+  
+  /// Current text input for new clothing item description
   String currentItemText = '';
 
-  // name of current outfit
+  /// Current name of the outfit being edited
   String currentOutfitNameText = '';
 
-  // selected color for color item creation
+  /// Currently selected color for new clothing item
   Color currentItemColor = Colors.white;
 
-  // clothing items of outfit
+  /// List of clothing items in the outfit
   List<ClothingItem> clothingItems = [];
 
-  // whether outfit is for rainy whether
+  /// Flag indicating if outfit is suitable for rainy weather
   bool isForRainy = false;
 
-  // whether outfit is for rainy whether
+  /// Flag indicating if outfit is suitable for gloomy weather
   bool isForGloomy = false;
 
-  // whether outfit is for rainy whether
+  /// Flag indicating if outfit is suitable for sunny weather
   bool isForSunny = false;
 
-  // initializes outfit view state
+  /// Initializes the outfit view state with values from the provided outfit
   @override
   void initState() {
     super.initState();
@@ -53,7 +62,7 @@ class _OutfitViewState extends State<OutfitView> {
     isForSunny = widget.outfit.isForSunny;
   }
 
-  // builds the outfit view
+  /// Builds the outfit editing interface
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,6 +92,7 @@ class _OutfitViewState extends State<OutfitView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Outfit name input field
               TextFormField(
                 initialValue: currentOutfitNameText,
                 decoration: const InputDecoration(
@@ -98,7 +108,8 @@ class _OutfitViewState extends State<OutfitView> {
                 onChanged: (value) => currentOutfitNameText = value,
               ),
               const SizedBox(height: 16),
-              // Weather Conditions Section Header with Icon
+              
+              // Weather conditions section
               const Row(
                 children: [
                   Icon(Icons.wb_sunny, color: Colors.orange),
@@ -109,7 +120,8 @@ class _OutfitViewState extends State<OutfitView> {
               const SizedBox(height: 8),
               _displayWeatherIcons(),
               const SizedBox(height: 24),
-              // Add Clothing Item Section Header with Icon
+              
+              // Add clothing item section
               const Row(
                 children: [
                   Icon(Icons.add_circle_outline, color: Colors.green),
@@ -120,7 +132,8 @@ class _OutfitViewState extends State<OutfitView> {
               const SizedBox(height: 8),
               _createItemTile(),
               const SizedBox(height: 24),
-              // Current Items Section Header with Icon
+              
+              // Current items section
               const Row(
                 children: [
                   Icon(Icons.checkroom, color: Colors.blue),
@@ -131,6 +144,8 @@ class _OutfitViewState extends State<OutfitView> {
               const SizedBox(height: 8),
               _displayClothingItems(),
               const SizedBox(height: 24),
+              
+              // Save button
               SizedBox(
                 width: double.infinity,
                 child: Semantics(
@@ -157,6 +172,10 @@ class _OutfitViewState extends State<OutfitView> {
     );
   }
 
+  /// Shows a confirmation dialog before deleting the outfit
+  /// 
+  /// Parameters:
+  /// - context: The build context
   Future<void> _showDeleteConfirmation(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -184,7 +203,10 @@ class _OutfitViewState extends State<OutfitView> {
     }
   }
 
-  // saves edited Outfit to db from state weather bools and items
+  /// Saves the edited outfit to the database
+  /// 
+  /// Parameters:
+  /// - context: The build context
   void _doSave(BuildContext context) async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -195,8 +217,7 @@ class _OutfitViewState extends State<OutfitView> {
       isForSunny: isForSunny,
     );
 
-    // adds new items
-    // does not add duplicate items?
+    // Add all clothing items to the new outfit
     for (var item in clothingItems) {
       await newOutfit.addItem(clothingItem: item);
     }
@@ -209,9 +230,9 @@ class _OutfitViewState extends State<OutfitView> {
     }
   }
 
-  // displays weather icon buttons for weather condition tags of outfit
-  // maintains local state of weather tags for outfit
-  // does NOT update outfit's weather tags until back/create button clicked
+  /// Displays weather condition selection buttons
+  /// 
+  /// Returns: A row of weather condition buttons
   Widget _displayWeatherIcons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -223,9 +244,12 @@ class _OutfitViewState extends State<OutfitView> {
     );
   }
 
-  // makes a weather button that when clicked
-  // selects/deselects weather tag
-  // does NOT change outfit's tags
+  /// Creates a weather condition selection button
+  /// 
+  /// Parameters:
+  /// - condition: The weather condition this button represents
+  /// - isSelected: Whether this condition is currently selected
+  /// Returns: A button widget for selecting a weather condition
   Widget _makeWeatherButton(String condition, bool isSelected) {
     IconData icon = switch (condition) {
       'Gloomy' => Icons.cloud,
