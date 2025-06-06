@@ -8,6 +8,8 @@ import 'package:outfit_finder/providers/weather_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:outfit_finder/main.dart';
 import 'package:outfit_finder/providers/locale_change_notifier.dart';
+import 'package:outfit_finder/views/outfit_view.dart';
+import 'package:outfit_finder/models/outfit.dart';
 
 /// A custom top bar widget that displays weather information and controls.
 class CustomTopBar extends StatelessWidget {
@@ -127,7 +129,13 @@ class CustomTopBar extends StatelessWidget {
                         size: 28,
                         color: textColor,
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => OutfitView(outfit: Outfit(name: '')),
+                          ),
+                        );
+                      },
                       tooltip: loc.addClothingItem,
                     ),
                   ),

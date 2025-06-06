@@ -4,6 +4,7 @@ import 'package:outfit_finder/weather_conditions.dart';
 import 'package:provider/provider.dart';
 import 'package:outfit_finder/providers/weather_provider.dart';
 import 'package:outfit_finder/widgets/outfit_card.dart';
+import 'package:outfit_finder/views/outfit_view.dart';
 
 /// A component that displays outfits filtered by weather condition
 class WeatherFilter extends StatefulWidget {
@@ -22,6 +23,7 @@ class _WeatherFilterState extends State<WeatherFilter> {
 
   @override
   Widget build(BuildContext context) {
+    print('WeatherFilter: Building widget');
     return _buildOutfitsList();
   }
 
@@ -58,4 +60,22 @@ class _WeatherFilterState extends State<WeatherFilter> {
     }
   }
 
+  /// Navigates to the outfit editing view.
+  /// 
+  /// Parameters:
+  /// - context: The build context
+  /// - outfit: The outfit to edit
+  Future<void> _navigateToOutfit(BuildContext context, Outfit outfit) async {
+    print('WeatherFilter: Attempting to navigate to OutfitView');
+    try {
+      await Navigator.push(context,
+          MaterialPageRoute(builder: (context) {
+            print('WeatherFilter: Building OutfitView route');
+            return OutfitView(outfit: outfit);
+          }));
+      print('WeatherFilter: Successfully returned from OutfitView');
+    } catch (e) {
+      print('WeatherFilter: Error navigating to OutfitView: $e');
+    }
+  }
 } 
