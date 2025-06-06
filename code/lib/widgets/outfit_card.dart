@@ -123,7 +123,7 @@ class OutfitCard extends StatelessWidget {
   Widget _weatherRow(IconData icon, String label) {
     return Row(
       children: [
-        Icon(icon, size: 18, semanticLabel: label),
+        Icon(icon, size: 18),
         const SizedBox(width: 4),
         Text(label, style: const TextStyle(fontSize: 16)),
       ],
@@ -163,7 +163,7 @@ class OutfitCard extends StatelessWidget {
               border: Border.all(color: Colors.grey.shade400, width: 1),
             ),
             child: Semantics(
-              label: '${loc.prenda} ${item.description} ${loc.color}: ${item.colorName}',
+              label: '${item.description}, ${loc.color}: ${ColorHelper().getLocalizedColorName(item.colorName, context)}',
               child: const SizedBox.shrink(),
             ),
           ),
