@@ -62,11 +62,15 @@ class _OutfitViewState extends State<OutfitView> {
   /// Text controller for the item input field
   final TextEditingController _itemController = TextEditingController();
 
+  /// Text controller for the outfit name field
+  final TextEditingController _nameController = TextEditingController();
+
   /// Initializes the outfit view state with values from the provided outfit
   @override
   void initState() {
     super.initState();
     currentOutfitNameText = widget.outfit.name;
+    _nameController.text = currentOutfitNameText;
     clothingItems = widget.outfit.clothingItems.toList();
     isForGloomy = widget.outfit.isForGloomy;
     isForRainy = widget.outfit.isForRainy;
@@ -77,6 +81,7 @@ class _OutfitViewState extends State<OutfitView> {
   @override
   void dispose() {
     _itemController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -123,24 +128,27 @@ class _OutfitViewState extends State<OutfitView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Outfit title with edit icon
+              // Outfit title with editable text field
               Row(
                 children: [
-                  Text(
-                    currentOutfitNameText.isEmpty ? 'New Outfit' : currentOutfitNameText,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () => _showEditNameDialog(context),
-                    child: const Icon(
-                      Icons.edit,
-                      size: 20,
-                      color: Colors.grey,
+                  Expanded(
+                    child: TextField(
+                      controller: _nameController,
+                      decoration: const InputDecoration(
+                        hintText: 'Outfit Name',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(vertical: 8),
+                      ),
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          currentOutfitNameText = value;
+                        });
+                      },
                     ),
                   ),
                 ],
@@ -203,42 +211,6 @@ class _OutfitViewState extends State<OutfitView> {
     );
   }
 
-  /// Shows a dialog to edit the outfit name
-  Future<void> _showEditNameDialog(BuildContext context) async {
-    final TextEditingController nameController = TextEditingController(text: currentOutfitNameText);
-    
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Outfit Name'),
-        content: TextField(
-          controller: nameController,
-          decoration: const InputDecoration(
-            labelText: 'Outfit Name',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                currentOutfitNameText = nameController.text;
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-    
-    nameController.dispose();
-  }
-
   /// Shows a confirmation dialog before deleting the outfit
   /// 
   /// Parameters:
@@ -264,9 +236,9 @@ class _OutfitViewState extends State<OutfitView> {
 
     if (confirmed == true && context.mounted) {
       await context.read<DatabaseProvider>().deleteOutfit(widget.outfit);
-      if (widget.onRefresh != null) widget.onRefresh!();
       if (context.mounted) {
         Navigator.pop(context);
+        if (widget.onRefresh != null) widget.onRefresh!();
       }
     }
   }
@@ -308,9 +280,9 @@ class _OutfitViewState extends State<OutfitView> {
 
       // 4. Reload data and pop back to all outfits view
       await dbProvider.loadData();
-      if (widget.onRefresh != null) widget.onRefresh!();
       if (context.mounted) {
         Navigator.pop(context);
+        if (widget.onRefresh != null) widget.onRefresh!();
       }
     } catch (e) {
       if (context.mounted) {
