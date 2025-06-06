@@ -47,6 +47,10 @@ class _OutfitViewState extends State<OutfitView> {
   /// List of clothing items in the outfit
   List<ClothingItem> clothingItems = [];
 
+  /// Undo/redo stacks for clothing items
+  final List<ClothingItem> _undoStack = [];
+  final List<ClothingItem> _redoStack = [];
+
   /// Flag indicating if outfit is suitable for rainy weather
   bool isForRainy = false;
 
@@ -104,12 +108,26 @@ class _OutfitViewState extends State<OutfitView> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.undo, color: Colors.black),
-            onPressed: () {}, // Add undo functionality
+            icon: Icon(Icons.undo, color: clothingItems.isNotEmpty ? Colors.black : Colors.grey),
+            onPressed: clothingItems.isNotEmpty
+                ? () {
+                    setState(() {
+                      final removed = clothingItems.removeLast();
+                      _undoStack.add(removed);
+                    });
+                  }
+                : null,
           ),
           IconButton(
-            icon: const Icon(Icons.redo, color: Colors.black),
-            onPressed: () {}, // Add redo functionality
+            icon: Icon(Icons.redo, color: _undoStack.isNotEmpty ? Colors.black : Colors.grey),
+            onPressed: _undoStack.isNotEmpty
+                ? () {
+                    setState(() {
+                      final restored = _undoStack.removeLast();
+                      clothingItems.add(restored);
+                    });
+                  }
+                : null,
           ),
           if (widget.outfit.name.isNotEmpty) // Only show delete for existing outfits
             Semantics(
@@ -472,6 +490,7 @@ class _OutfitViewState extends State<OutfitView> {
       clothingItems.add(itemToAdd);
       currentItemText = '';
       _itemController.clear();
+      _undoStack.clear(); // Clear redo stack on new action
     });
   }
 
