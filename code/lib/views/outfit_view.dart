@@ -100,18 +100,26 @@ class _OutfitViewState extends State<OutfitView> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: Semantics(
-          label: 'Go back to all outfits',
+          label: loc?.backToWardrobe,
           child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () => Navigator.pop(context),
+            icon: Icon(
+              Icons.arrow_back,
+              semanticLabel: loc?.backToWardrobe,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            tooltip: loc?.backToWardrobe,
           ),
         ),
         actions: [
           Semantics(
-            label: loc.undo,
-            button: true,
+            label: loc?.undo,
             child: IconButton(
-              icon: Icon(Icons.undo, color: clothingItems.isNotEmpty ? Colors.black : Colors.grey),
+              icon: Icon(
+                Icons.undo,
+                semanticLabel: loc?.undo,
+              ),
               onPressed: clothingItems.isNotEmpty
                   ? () {
                       setState(() {
@@ -120,13 +128,16 @@ class _OutfitViewState extends State<OutfitView> {
                       });
                     }
                   : null,
+              tooltip: loc?.undo,
             ),
           ),
           Semantics(
-            label: loc.redo,
-            button: true,
+            label: loc?.redo,
             child: IconButton(
-              icon: Icon(Icons.redo, color: _undoStack.isNotEmpty ? Colors.black : Colors.grey),
+              icon: Icon(
+                Icons.redo,
+                semanticLabel: loc?.redo,
+              ),
               onPressed: _undoStack.isNotEmpty
                   ? () {
                       setState(() {
@@ -135,6 +146,7 @@ class _OutfitViewState extends State<OutfitView> {
                       });
                     }
                   : null,
+              tooltip: loc?.redo,
             ),
           ),
           if (widget.outfit.name.isNotEmpty) // Only show delete for existing outfits
@@ -331,8 +343,6 @@ class _OutfitViewState extends State<OutfitView> {
         _makeWeatherButton('Gloomy', isForGloomy),
         const SizedBox(width: 20),
         _makeWeatherButton('Sunny', isForSunny),
-        const SizedBox(width: 20),
-        _makeWeatherButton('Sunny2', isForSunny2),
       ],
     );
   }
@@ -347,17 +357,12 @@ class _OutfitViewState extends State<OutfitView> {
     IconData icon = switch (condition) {
       'Gloomy' => Icons.cloud_outlined,
       'Sunny' => Icons.wb_sunny_outlined,
-      'Sunny2' => Icons.wb_sunny,
       'Rainy' => Icons.thunderstorm_outlined,
       _ => Icons.question_mark
     };
     
-    String label;
-    if (condition == 'Sunny2') {
-      label = 'Very sunny weather button, ${isSelected ? "selected" : "not selected"}';
-    } else {
-      label = '$condition weather button, ${isSelected ? "selected" : "not selected"}';
-    }
+    String label = '$condition weather button, ${isSelected ? "selected" : "not selected"}';
+    
     return Semantics(
       label: label,
       child: GestureDetector(
@@ -366,7 +371,6 @@ class _OutfitViewState extends State<OutfitView> {
             if (condition == 'Rainy') isForRainy = !isForRainy;
             if (condition == 'Gloomy') isForGloomy = !isForGloomy;
             if (condition == 'Sunny') isForSunny = !isForSunny;
-            if (condition == 'Sunny2') isForSunny2 = !isForSunny2;
           });
         },
         child: Icon(

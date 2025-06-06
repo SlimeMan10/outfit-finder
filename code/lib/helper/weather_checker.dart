@@ -81,10 +81,18 @@ class WeatherChecker {
   /// Returns: Weather condition
   WeatherCondition _shortForecastToCondition(String shortForecast) {
     final lowercased = shortForecast.toLowerCase();
-    if (lowercased.startsWith('rain')) return WeatherCondition.rainy;
-    if (lowercased.startsWith('sun') || lowercased.startsWith('partly')) {
+    if (lowercased.contains('rain') || lowercased.contains('shower')) {
+      return WeatherCondition.rainy;
+    }
+    if (lowercased.contains('sun') || lowercased.contains('clear')) {
       return WeatherCondition.sunny;
     }
-    return WeatherCondition.gloomy;
+    if (lowercased.contains('partly cloudy') || lowercased.contains('mostly clear')) {
+      return WeatherCondition.slightlyCloudy;
+    }
+    if (lowercased.contains('cloud') || lowercased.contains('overcast')) {
+      return WeatherCondition.gloomy;
+    }
+    return WeatherCondition.unknown;
   }
 }

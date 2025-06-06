@@ -71,15 +71,18 @@ class CustomTopBar extends StatelessWidget {
                     _getWeatherIcon(weather),
                     size: 32,
                     color: textColor,
-                    semanticLabel: _localizedWeatherLabel(context, weather),
+                    semanticLabel: loc?.todaysWeather(_localizedWeatherLabel(context, weather)),
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    _localizedWeatherLabel(context, weather),
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: textColor,
+                  Semantics(
+                    label: loc?.todaysWeather(_localizedWeatherLabel(context, weather)),
+                    child: Text(
+                      _localizedWeatherLabel(context, weather),
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                      ),
                     ),
                   ),
                 ],
@@ -88,15 +91,16 @@ class CustomTopBar extends StatelessWidget {
                 children: [
                   // Language Switcher Button
                   Semantics(
-                    label: 'Change Language',
+                    label: loc?.changeLanguage,
                     button: true,
                     child: IconButton(
                       icon: Icon(
                         Icons.language,
                         color: textColor,
+                        semanticLabel: loc?.changeLanguage,
                       ),
                       onPressed: () => _showLanguageDialog(context),
-                      tooltip: 'Change Language',
+                      tooltip: loc?.changeLanguage,
                     ),
                   ),
                   Container(
@@ -105,13 +109,14 @@ class CustomTopBar extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Semantics(
-                      label: loc?.weatherConditions ?? 'Weather filter',
+                      label: loc?.weatherConditions,
                       button: true,
                       child: IconButton(
                         icon: Icon(
                           Icons.filter_list,
                           size: 28,
                           color: isFilterActive ? Colors.white : textColor,
+                          semanticLabel: loc?.weatherConditions,
                         ),
                         onPressed: () {
                           if (isFilterActive) {
@@ -121,7 +126,7 @@ class CustomTopBar extends StatelessWidget {
                           }
                           onFilterPressed();
                         },
-                        tooltip: loc?.weatherConditions ?? 'Weather filter',
+                        tooltip: loc?.weatherConditions,
                       ),
                     ),
                   ),
@@ -133,6 +138,7 @@ class CustomTopBar extends StatelessWidget {
                         Icons.add,
                         size: 28,
                         color: textColor,
+                        semanticLabel: loc?.addNewOutfit,
                       ),
                       onPressed: () async {
                         await Navigator.of(context).push(
@@ -152,11 +158,14 @@ class CustomTopBar extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              Text(
-                highTemp != 0 ? '$highTemp°' : '--',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: textColor,
+              Semantics(
+                label: "Today's high temperature: ${highTemp != 0 ? '$highTemp°' : '--'}",
+                child: Text(
+                  highTemp != 0 ? '$highTemp°' : '--',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: textColor,
+                  ),
                 ),
               ),
               const SizedBox(width: 6),
@@ -172,11 +181,14 @@ class CustomTopBar extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              Text(
-                lowTemp != 0 ? '$lowTemp°' : '--',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: textColor,
+              Semantics(
+                label: "Today's low temperature: ${lowTemp != 0 ? '$lowTemp°' : '--'}",
+                child: Text(
+                  lowTemp != 0 ? '$lowTemp°' : '--',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: textColor,
+                  ),
                 ),
               ),
             ],
@@ -303,7 +315,6 @@ class CustomTopBar extends StatelessWidget {
   String _localizedWeatherLabel(BuildContext context, WeatherCondition condition) {
     final loc = AppLocalizations.of(context);
     
-    // Using your existing localization keys with fallbacks
     switch (condition) {
       case WeatherCondition.sunny:
         return loc?.sunny ?? 'Sunny';
@@ -314,7 +325,7 @@ class CustomTopBar extends StatelessWidget {
       case WeatherCondition.slightlyCloudy:
         return loc?.partlyCloudy ?? 'Partly Cloudy';
       case WeatherCondition.unknown:
-        return loc?.any ?? 'Any';
+        return loc?.unknown ?? 'Unknown';
     }
   }
 

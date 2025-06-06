@@ -3,7 +3,7 @@
   "saveOutfit": "Save Outfit",
   "deleteOutfit": "Delete Outfit",
   "outfitNameLabel": "Outfit Name",
-  "weatherConditions": "Weather Conditions",
+  "weatherConditions": "Filter by weather conditions",
   "addClothingItem": "Add Clothing Item",
   "currentItems": "Current Items",
   "addItem": "Add Item",
@@ -36,8 +36,11 @@
   "addNewOutfit": "Add new outfit",
   "changeLanguage": "Change Language",
   "selectLanguage": "Select Language",
-  "undo": "Undo",
-  "redo": "Redo",
+  "undo": "Undo delete article of clothing",
+  "redo": "Redo delete article of clothing",
+  "unknown": "Unknown",
+  "todaysWeather": "Today's weather: {weather}",
+  "backToWardrobe": "Back to wardrobe",
   "@undo": {
     "description": "Label for the undo button"
   },
@@ -103,5 +106,16 @@
   },
   "@addNewOutfit": {
     "description": "Label for the add new outfit button"
+  },
+  "@todaysWeather": {
+    "description": "Label for today's weather condition",
+    "placeholders": {
+      "weather": {
+        "type": "String"
+      }
+    }
+  },
+  "@backToWardrobe": {
+    "description": "Label for the back button to return to wardrobe"
   }
 }
