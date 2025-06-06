@@ -3,6 +3,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:outfit_finder/models/clothing_item.dart';
 import 'package:outfit_finder/models/outfit.dart';
 
+// Isar database object
 late Isar isar;
 
 /// Initializes Isar with required collections

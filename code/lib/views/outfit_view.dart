@@ -1,12 +1,11 @@
-/// A view for editing or creating outfits.
-/// This widget provides a form interface for managing outfit details,
-/// including name, weather conditions, and clothing items.
+// A view for editing or creating outfits.
+// This widget provides a form interface for managing outfit details,
+// including name, weather conditions, and clothing items.
 import 'package:outfit_finder/models/clothing_item.dart';
 import 'package:outfit_finder/models/outfit.dart';
 import 'package:flutter/material.dart';
 import 'package:outfit_finder/helper/color_helper.dart';
 import 'package:outfit_finder/providers/database_provider.dart';
-import 'package:outfit_finder/widgets/clothing_item_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -49,7 +48,6 @@ class _OutfitViewState extends State<OutfitView> {
 
   /// Undo/redo stacks for clothing items
   final List<ClothingItem> _undoStack = [];
-  final List<ClothingItem> _redoStack = [];
 
   /// Flag indicating if outfit is suitable for rainy weather
   bool isForRainy = false;
@@ -368,7 +366,7 @@ class _OutfitViewState extends State<OutfitView> {
     IconData icon = switch (condition) {
       'Gloomy' => Icons.cloud_outlined,
       'Sunny' => Icons.wb_sunny_outlined,
-      'Rainy' => Icons.thunderstorm_outlined,
+      'Rainy' => Icons.beach_access,
       _ => Icons.question_mark
     };
     
@@ -531,9 +529,8 @@ class _OutfitViewState extends State<OutfitView> {
   void addItem() {
     if (currentItemText.isEmpty) return;
     // Get the localized color name for storage
-    final loc = AppLocalizations.of(context);
     final englishKey = ColorHelper().colorMap.entries
-        .firstWhere((entry) => entry.value == currentItemColor, orElse: () => MapEntry('white', Colors.white))
+        .firstWhere((entry) => entry.value == currentItemColor, orElse: () => const MapEntry('white', Colors.white))
         .key;
     final localizedColorName = ColorHelper().getLocalizedColorName(englishKey, context);
     

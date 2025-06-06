@@ -1,15 +1,11 @@
-/// Main application widget for the Outfit Finder app.
-/// This widget manages the overall app structure and outfit filtering functionality.
+//  Main application widget for the Outfit Finder app.
+// This widget manages the overall app structure and outfit filtering functionality.
 import 'package:flutter/material.dart';
 import 'package:outfit_finder/providers/database_provider.dart';
 import 'package:outfit_finder/components/weather_filter.dart';
 import 'package:outfit_finder/models/outfit.dart';
 import 'package:outfit_finder/widgets/custom_top_bar.dart';
 import 'package:outfit_finder/weather_conditions.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:outfit_finder/views/outfit_view.dart';
-import 'package:provider/provider.dart';
 
 /// The root widget of the Outfit Finder application.
 /// Manages the database provider and overall app structure.
@@ -39,20 +35,10 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
   /// Flag indicating if the weather filter is currently active
   bool _isFilterActive = false;
 
-  /// Current locale of the app
-  Locale _locale = const Locale('en');
-
   @override
   void initState() {
     super.initState();
     _outfitsFuture = widget.venues.getAllOutfits();
-  }
-
-  /// Sets the app's locale
-  void setLocale(Locale locale) {
-    setState(() {
-      _locale = locale;
-    });
   }
 
   /// Filters the list of outfits based on the selected weather condition.
@@ -79,6 +65,9 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
     }).toList();
   }
 
+  /// builds the main app screen with all the outfits 
+  /// Parameters:
+  ///   - context: BuildContext to construct Widget tree with 
   @override
   Widget build(BuildContext context) {
     void refreshOutfits() {

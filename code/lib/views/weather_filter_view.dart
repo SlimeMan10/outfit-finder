@@ -1,6 +1,6 @@
-/// A view that displays outfits filtered by weather condition.
-/// This widget provides a dropdown to select weather conditions and displays
-/// outfits that match the selected condition.
+// A view that displays outfits filtered by weather condition.
+// This widget provides a dropdown to select weather conditions and displays
+// outfits that match the selected condition.
 import 'package:flutter/material.dart';
 import 'package:outfit_finder/models/outfit.dart';
 import 'package:outfit_finder/weather_conditions.dart';

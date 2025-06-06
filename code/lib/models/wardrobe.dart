@@ -1,6 +1,6 @@
-/// Represents a wardrobe that manages a collection of outfits.
-/// This class provides functionality to store, retrieve, and update outfits
-/// in both memory and the Isar database.
+// Represents a wardrobe that manages a collection of outfits.
+// This class provides functionality to store, retrieve, and update outfits
+// in both memory and the Isar database.
 import 'outfit.dart';
 import 'package:isar/isar.dart';
 

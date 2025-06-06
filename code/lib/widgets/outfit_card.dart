@@ -1,6 +1,6 @@
-/// A card widget that displays an outfit's details.
-/// This widget shows the outfit name, weather conditions, and clothing items
-/// in a visually appealing card format.
+// A card widget that displays an outfit's details.
+// This widget shows the outfit name, weather conditions, and clothing items
+// in a visually appealing card format.
 import 'package:flutter/material.dart';
 import 'package:outfit_finder/models/outfit.dart';
 import 'package:outfit_finder/views/outfit_view.dart';
@@ -59,8 +59,8 @@ class OutfitCard extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () => _navigateToOutfit(context, outfit),
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(40, 30)),
                   child: Text(loc.edit, style: const TextStyle(fontSize: 16)),
-                  style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size(40, 30)),
                 ),
               ],
             ),

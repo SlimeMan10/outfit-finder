@@ -1,12 +1,11 @@
-/// A custom top bar widget that displays weather information and filtering controls.
-/// This widget shows the current weather condition, temperature range, and provides
-/// filtering functionality for outfits.
+//  A custom top bar widget that displays weather information and filtering controls.
+// This widget shows the current weather condition, temperature range, and provides
+// iltering functionality for outfits.
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:outfit_finder/weather_conditions.dart';
 import 'package:outfit_finder/providers/weather_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:outfit_finder/main.dart';
 import 'package:outfit_finder/providers/locale_change_notifier.dart';
 import 'package:outfit_finder/views/outfit_view.dart';
 import 'package:outfit_finder/models/outfit.dart';
@@ -45,7 +44,6 @@ class CustomTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     // Get current weather information from provider
     final weather = context.watch<WeatherProvider>().condition;
-    final temp = context.watch<WeatherProvider>().tempInFahrenheit;
     final lowTemp = context.watch<WeatherProvider>().lowTempFahrenheit;
     final highTemp = context.watch<WeatherProvider>().highTempFahrenheit;
     final loc = AppLocalizations.of(context);
@@ -98,8 +96,8 @@ class CustomTopBar extends StatelessWidget {
                           
                           return Text(
                             _localizedWeatherLabel(context, weather),
-                            style: const TextStyle(
-                              fontSize: 28,
+                            style: TextStyle(
+                              fontSize: fontSize,
                               fontWeight: FontWeight.bold,
                             ),
                             overflow: TextOverflow.ellipsis,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+// class for helping to represent the pre defined set of colors 
+// for the clothing items
 class ColorHelper {
   final Color black = Colors.black;
   final Color darkGrey = const Color(0xFF676767);
@@ -26,6 +28,7 @@ class ColorHelper {
   final Color olive = const Color(0xFF808000);
   final Color lime = Colors.lime;
 
+  // map of strings to Colors 
   late final Map<String, Color> colorMap = {
     'black': black,
     'darkgrey': darkGrey,
@@ -52,6 +55,8 @@ class ColorHelper {
     'lime': lime,
   };
 
+  // gets and returns Color from pre defined set with given String 
+  // white default 
   Color getColorFromString(String colorString, BuildContext context) {
     final loc = AppLocalizations.of(context);
     if (loc == null) return white;
@@ -93,6 +98,8 @@ class ColorHelper {
     return colorMap[englishKey] ?? white;
   }
 
+  // get string from pre defined set of Colors with given color
+  // default to white
   String getStringFromColor(Color color, BuildContext context) {
     final loc = AppLocalizations.of(context);
     if (loc == null) return 'white';
@@ -131,6 +138,10 @@ class ColorHelper {
     return englishToLocalized[englishKey] ?? loc.white;
   }
 
+  // Get localized color name with given english key and context 
+  // Parameters:
+  //    englishKey: key of english name 
+  //    context: BuildContext used to get localization 
   String getLocalizedColorName(String englishKey, BuildContext context) {
     final loc = AppLocalizations.of(context);
     if (loc == null) return englishKey;

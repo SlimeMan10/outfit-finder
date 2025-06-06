@@ -1,6 +1,6 @@
-/// Manages weather data and updates for the application.
-/// This provider handles fetching, storing, and updating weather information
-/// including temperature and conditions.
+// Manages weather data and updates for the application.
+// This provider handles fetching, storing, and updating weather information
+// including temperature and conditions.
 import 'dart:async';
 
 import 'package:flutter/material.dart';

@@ -1,6 +1,6 @@
-/// Manages the user's location for the application.
-/// This provider handles location permissions, updates, and provides
-/// access to the current position coordinates.
+// Manages the user's location for the application.
+// This provider handles location permissions, updates, and provides
+// access to the current position coordinates.
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
