@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:outfit_finder/weather_conditions.dart';
 import 'package:outfit_finder/providers/weather_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:outfit_finder/main.dart';
+import 'package:outfit_finder/providers/locale_change_notifier.dart';
 
 /// A custom top bar widget that displays weather information and controls.
 class CustomTopBar extends StatelessWidget {
@@ -34,9 +37,15 @@ class CustomTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     // Get current weather information from provider
     final weather = context.watch<WeatherProvider>().condition;
+    final temp = context.watch<WeatherProvider>().tempInFahrenheit;
     final lowTemp = context.watch<WeatherProvider>().lowTempFahrenheit;
     final highTemp = context.watch<WeatherProvider>().highTempFahrenheit;
+    final loc = AppLocalizations.of(context);
+    if (loc == null) return const SizedBox.shrink();
     
+    final textColor = _getTextColor(weather);
+    final borderColor = _getBorderColor(weather);
+
     return Container(
       padding: const EdgeInsets.only(top: 48, left: 16, right: 16, bottom: 8),
       decoration: BoxDecoration(
@@ -45,63 +54,96 @@ class CustomTopBar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Weather condition and filter controls row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Weather condition display
               Row(
                 children: [
-                  Icon(_getWeatherIcon(weather), size: 32),
+                  Icon(
+                    _getWeatherIcon(weather),
+                    size: 32,
+                    color: textColor,
+                    semanticLabel: _localizedWeatherLabel(context, weather),
+                  ),
                   const SizedBox(width: 8),
                   Text(
-                    weather == WeatherCondition.unknown ? 'Any' : weather.toString(),
-                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    _localizedWeatherLabel(context, weather),
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
                   ),
                 ],
               ),
-              // Filter and add buttons
               Row(
                 children: [
+                  // Language Switcher Button
+                  Semantics(
+                    label: 'Change Language',
+                    button: true,
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.language,
+                        color: textColor,
+                      ),
+                      onPressed: () => _showLanguageDialog(context),
+                      tooltip: 'Change Language',
+                    ),
+                  ),
                   Container(
                     decoration: BoxDecoration(
                       color: isFilterActive ? _getFilterActiveColor(weather) : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.filter_list,
-                        size: 28,
-                        color: isFilterActive ? Colors.white : Colors.black87,
+                    child: Semantics(
+                      label: loc.weatherConditions,
+                      button: true,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.filter_list,
+                          size: 28,
+                          color: isFilterActive ? Colors.white : textColor,
+                        ),
+                        onPressed: () {
+                          if (isFilterActive) {
+                            onWeatherFilterSelected(null); // Reset to show all
+                          } else {
+                            onWeatherFilterSelected(weather); // Filter to current weather
+                          }
+                          onFilterPressed();
+                        },
+                        tooltip: loc.weatherConditions,
                       ),
-                      onPressed: () {
-                        if (isFilterActive) {
-                          onWeatherFilterSelected(null); // Reset to show all
-                        } else {
-                          onWeatherFilterSelected(weather); // Filter to current weather
-                        }
-                        onFilterPressed();
-                      },
-                      tooltip: 'Filter by current weather',
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.add, size: 28),
-                    onPressed: () {},
-                    tooltip: 'Add outfit',
+                  Semantics(
+                    label: loc.addClothingItem,
+                    button: true,
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.add,
+                        size: 28,
+                        color: textColor,
+                      ),
+                      onPressed: () {},
+                      tooltip: loc.addClothingItem,
+                    ),
                   ),
                 ],
               )
             ],
           ),
           const SizedBox(height: 8),
-          // Temperature range display
           Row(
             children: [
               Text(
                 highTemp != 0 ? '$highTemp°' : '--',
-                style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: textColor,
+                ),
               ),
               const SizedBox(width: 6),
               Container(
@@ -112,18 +154,57 @@ class CustomTopBar extends StatelessWidget {
                   gradient: const LinearGradient(
                     colors: [Color(0xFFB2EBF2), Color(0xFFFFAB91)],
                   ),
+                  border: Border.all(color: borderColor, width: 1),
                 ),
               ),
               const SizedBox(width: 6),
               Text(
                 lowTemp != 0 ? '$lowTemp°' : '--',
-                style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: textColor,
+                ),
               ),
             ],
           ),
         ],
       ),
     );
+  }
+
+  void _showLanguageDialog(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    if (loc == null) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Language'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('English'),
+              onTap: () {
+                _changeLanguage(context, const Locale('en'));
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Español'),
+              onTap: () {
+                _changeLanguage(context, const Locale('es'));
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _changeLanguage(BuildContext context, Locale locale) {
+    context.read<LocaleChangeNotifier>().setLocale(locale);
   }
 
   /// Gets the color for the active filter button based on weather condition.
@@ -203,6 +284,61 @@ class CustomTopBar extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         );
+    }
+  }
+
+  String _localizedWeatherLabel(BuildContext context, WeatherCondition condition) {
+    final loc = AppLocalizations.of(context)!;
+    switch (condition) {
+      case WeatherCondition.sunny:
+        return loc.sunny;
+      case WeatherCondition.gloomy:
+        return loc.cloudyDay;
+      case WeatherCondition.rainy:
+        return loc.rainyDay;
+      case WeatherCondition.slightlyCloudy:
+        return loc.partlyCloudy;
+      case WeatherCondition.unknown:
+        return loc.any;
+    }
+  }
+
+  bool _isDarkBackground(WeatherCondition condition) {
+    switch (condition) {
+      case WeatherCondition.rainy:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  Color _getTextColor(WeatherCondition condition) {
+    switch (condition) {
+      case WeatherCondition.sunny:
+        return const Color(0xFF1A1A1A); // Dark gray for yellow background
+      case WeatherCondition.gloomy:
+        return const Color(0xFF1A1A1A); // Dark gray for gray background
+      case WeatherCondition.rainy:
+        return Colors.white; // White for blue background
+      case WeatherCondition.slightlyCloudy:
+        return const Color(0xFF1A1A1A); // Dark gray for light gray background
+      case WeatherCondition.unknown:
+        return const Color(0xFF1A1A1A); // Dark gray for neutral background
+    }
+  }
+
+  Color _getBorderColor(WeatherCondition condition) {
+    switch (condition) {
+      case WeatherCondition.sunny:
+        return const Color(0xFF424242); // Darker gray for yellow background
+      case WeatherCondition.gloomy:
+        return const Color(0xFF424242); // Darker gray for gray background
+      case WeatherCondition.rainy:
+        return Colors.white; // White for blue background
+      case WeatherCondition.slightlyCloudy:
+        return const Color(0xFF424242); // Darker gray for light gray background
+      case WeatherCondition.unknown:
+        return const Color(0xFF424242); // Darker gray for neutral background
     }
   }
 } 

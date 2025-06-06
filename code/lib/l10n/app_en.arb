@@ -1,0 +1,93 @@
+{
+  "outfitViewTitle": "Outfit Details",
+  "saveOutfit": "Save Outfit",
+  "deleteOutfit": "Delete Outfit",
+  "outfitNameLabel": "Outfit Name",
+  "weatherConditions": "Weather Conditions",
+  "addClothingItem": "Add Clothing Item",
+  "currentItems": "Current Items",
+  "addItem": "Add Item",
+  "itemDescription": "Item Description",
+  "selectColor": "Select Color",
+  "noItemsAdded": "No items added yet",
+  "pleaseEnterOutfitName": "Please enter an outfit name",
+  "pleaseEnterItemDescription": "Please enter an item description",
+  "backButtonLabel": "Back",
+  "deleteConfirmation": "Are you sure you want to delete this outfit?",
+  "cancel": "Cancel",
+  "noItemsAvailable": "No outfits available",
+  "error": "Error",
+  "sunny": "Sunny",
+  "edit": "Edit",
+  "summerCasual": "Summer Casual",
+  "rainyDay": "Rainy Day",
+  "cloudyDay": "Cloudy Day",
+  "whiteTShirt": "White T-shirt",
+  "blueJeans": "Blue Jeans",
+  "sunglasses": "Sunglasses",
+  "rainJacket": "Rain Jacket",
+  "waterproofBoots": "Waterproof Boots",
+  "umbrella": "Umbrella",
+  "any": "Any",
+  "loadingItems": "Loading items...",
+  "noItemsInOutfit": "No items in this outfit",
+  "partlyCloudy": "Partly Cloudy",
+  "appTitle": "Outfit Finder",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "@error": {
+    "description": "Error message prefix"
+  },
+  "@noItemsAvailable": {
+    "description": "Message shown when no outfits are available"
+  },
+  "@outfitViewTitle": {
+    "description": "Title for the outfit view screen"
+  },
+  "@backButtonLabel": {
+    "description": "Label for the back button"
+  },
+  "@deleteOutfit": {
+    "description": "Label for delete outfit action"
+  },
+  "@outfitNameLabel": {
+    "description": "Label for outfit name input field"
+  },
+  "@pleaseEnterOutfitName": {
+    "description": "Error message when outfit name is empty"
+  },
+  "@weatherConditions": {
+    "description": "Label for weather conditions section"
+  },
+  "@addClothingItem": {
+    "description": "Label for add clothing item section"
+  },
+  "@currentItems": {
+    "description": "Label for current items section"
+  },
+  "@saveOutfit": {
+    "description": "Label for save outfit button"
+  },
+  "@deleteConfirmation": {
+    "description": "Confirmation message for deleting an outfit"
+  },
+  "@cancel": {
+    "description": "Label for cancel button"
+  },
+  "@noItemsAdded": {
+    "description": "Message shown when no items are added to an outfit"
+  },
+  "@itemDescription": {
+    "description": "Label for item description input field"
+  },
+  "@pleaseEnterItemDescription": {
+    "description": "Error message when item description is empty"
+  },
+  "@selectColor": {
+    "description": "Label for color selection section"
+  },
+  "@addItem": {
+    "description": "Label for add item button"
+  }
+}

@@ -6,6 +6,8 @@ import 'package:outfit_finder/components/weather_filter.dart';
 import 'package:outfit_finder/models/outfit.dart';
 import 'package:outfit_finder/widgets/custom_top_bar.dart';
 import 'package:outfit_finder/weather_conditions.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 /// The root widget of the Outfit Finder application.
 /// Manages the database provider and overall app structure.
@@ -35,10 +37,20 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
   /// Flag indicating if the weather filter is currently active
   bool _isFilterActive = false;
 
+  /// Current locale of the app
+  Locale _locale = const Locale('en');
+
   @override
   void initState() {
     super.initState();
     _outfitsFuture = widget.venues.getAllOutfits();
+  }
+
+  /// Sets the app's locale
+  void setLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
   }
 
   /// Filters the list of outfits based on the selected weather condition.
@@ -65,62 +77,58 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Outfit Finder',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
-      home: Scaffold(
-        body: FutureBuilder<List<Outfit>>(
-          future: _outfitsFuture,
-          builder: (context, snapshot) {
-            // Show loading indicator while fetching outfits
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            
-            // Show error message if fetching failed
-            if (snapshot.hasError) {
-              return Center(
-                child: Text('Error: ${snapshot.error}'),
-              );
-            }
-            
-            final outfits = snapshot.data ?? [];
-            
-            // Show message if no outfits are available
-            if (outfits.isEmpty) {
-              return const Center(
-                child: Text('No outfits available'),
-              );
-            }
-            
-            // Filter outfits based on selected weather condition
-            final filteredOutfits = _filterOutfits(outfits);
-            
-            return Column(
-              children: [
-                CustomTopBar(
-                  onFilterPressed: () {
-                    setState(() {
-                      _isFilterActive = !_isFilterActive;
-                    });
-                  },
-                  onWeatherFilterSelected: (condition) {
-                    setState(() {
-                      _selectedWeatherFilter = condition;
-                    });
-                  },
-                  isFilterActive: _isFilterActive,
-                ),
-                Expanded(child: WeatherFilter(outfits: filteredOutfits)),
-              ],
+    final loc = AppLocalizations.of(context);
+    if (loc == null) return const SizedBox.shrink();
+
+    return Scaffold(
+      body: FutureBuilder<List<Outfit>>(
+        future: _outfitsFuture,
+        builder: (context, snapshot) {
+          // Show loading indicator while fetching outfits
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
             );
-          },
-        ),
+          }
+          
+          // Show error message if fetching failed
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('${loc.error}: ${snapshot.error}'),
+            );
+          }
+          
+          final outfits = snapshot.data ?? [];
+          
+          // Show message if no outfits are available
+          if (outfits.isEmpty) {
+            return Center(
+              child: Text(loc.noItemsAvailable),
+            );
+          }
+          
+          // Filter outfits based on selected weather condition
+          final filteredOutfits = _filterOutfits(outfits);
+          
+          return Column(
+            children: [
+              CustomTopBar(
+                onFilterPressed: () {
+                  setState(() {
+                    _isFilterActive = !_isFilterActive;
+                  });
+                },
+                onWeatherFilterSelected: (condition) {
+                  setState(() {
+                    _selectedWeatherFilter = condition;
+                  });
+                },
+                isFilterActive: _isFilterActive,
+              ),
+              Expanded(child: WeatherFilter(outfits: filteredOutfits)),
+            ],
+          );
+        },
       ),
     );
   }

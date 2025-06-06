@@ -7,9 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:outfit_finder/providers/position_provider.dart';
 import 'package:outfit_finder/providers/weather_provider.dart';
 import 'package:outfit_finder/providers/database_provider.dart';
+import 'package:outfit_finder/providers/locale_change_notifier.dart';
 import 'package:outfit_finder/views/outfit_finder_app.dart';
 import 'package:provider/provider.dart';
 import 'package:outfit_finder/helper/isar_helper.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 /// Initializes the database and loads initial data.
 /// 
@@ -48,17 +51,51 @@ void main() async {
   await dbProvider.addSampleOutfits();
   
   // Launch the app with configured providers
-  runApp(
-    MultiProvider(
+  runApp(MyApp(databaseProvider: dbProvider));
+}
+
+class MyApp extends StatefulWidget {
+  final DatabaseProvider databaseProvider;
+
+  const MyApp({super.key, required this.databaseProvider});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final _localeNotifier = LocaleChangeNotifier();
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
       providers: [
-        // Provider for managing user location and updates
         ChangeNotifierProvider(create: (context) => PositionProvider()),
-        // Provider for managing weather data and updates
         ChangeNotifierProvider(create: (context) => WeatherProvider()),
-        // Provider for managing database operations
-        ChangeNotifierProvider.value(value: dbProvider),
+        ChangeNotifierProvider.value(value: widget.databaseProvider),
+        ChangeNotifierProvider.value(value: _localeNotifier),
       ],
-      child: OutFitFinderApp(venues: dbProvider),
-    ),
-  );
+      child: Consumer<LocaleChangeNotifier>(
+        builder: (context, localeNotifier, _) => MaterialApp(
+          title: 'Outfit Finder',
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+            useMaterial3: true,
+          ),
+          locale: localeNotifier.locale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en'), // English
+            Locale('es'), // Spanish
+          ],
+          home: OutFitFinderApp(venues: widget.databaseProvider),
+        ),
+      ),
+    );
+  }
 }

@@ -22,9 +22,7 @@ class _WeatherFilterState extends State<WeatherFilter> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: _buildOutfitsList(),
-    );
+    return _buildOutfitsList();
   }
 
   /// Builds the list of filtered outfits

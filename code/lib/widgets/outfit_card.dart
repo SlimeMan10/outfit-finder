@@ -6,6 +6,7 @@ import 'package:outfit_finder/models/outfit.dart';
 import 'package:outfit_finder/views/outfit_view.dart';
 import 'package:outfit_finder/weather_conditions.dart';
 import 'package:outfit_finder/helper/color_helper.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 /// A card widget that displays an outfit's information.
 class OutfitCard extends StatelessWidget {
@@ -29,6 +30,9 @@ class OutfitCard extends StatelessWidget {
   /// Builds the outfit card with name, weather tags, and clothing items.
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    if (loc == null) return const SizedBox.shrink(); // Return empty widget if localization is not available
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -50,34 +54,32 @@ class OutfitCard extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () => _navigateToOutfit(context, outfit),
-                  style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: const Size(40, 30)),
-                  child: const Text('Edit', style: TextStyle(fontSize: 16)),
+                  child: Text(loc.edit, style: const TextStyle(fontSize: 16)),
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size(40, 30)),
                 ),
               ],
             ),
             const SizedBox(height: 4),
-            _makeWeatherRow(),
+            _buildWeatherTag(context),
             const SizedBox(height: 12),
             // Clothing items list
             FutureBuilder<List<dynamic>>(
               future: outfit.getClothingItems(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Text('Loading items...');
+                  return Text(loc.loadingItems);
                 }
                 if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
+                  return Text('${loc.error}: ${snapshot.error}');
                 }
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Text('No items in this outfit');
+                  return Text(loc.noItemsInOutfit);
                 }
                 return Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   children: snapshot.data!
-                      .map((item) => _clothingChip(item))
+                      .map((item) => _clothingChip(context, item))
                       .toList(),
                 );
               },
@@ -98,53 +100,43 @@ class OutfitCard extends StatelessWidget {
         MaterialPageRoute(builder: (context) => OutfitView(outfit: outfit)));
   }
 
-  /// Creates a row of weather condition tags for the outfit.
-  /// 
-  /// Returns: A row containing icons and labels for each applicable weather condition
-  Widget _makeWeatherRow() {
-    List<Widget> weatherTags = [];
-    
-    // Add sunny weather tag if applicable
+  Widget _buildWeatherTag(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    if (loc == null) return const SizedBox.shrink();
+
     if (outfit.isForSunny) {
-      weatherTags.addAll([
-        const Icon(Icons.wb_sunny, size: 18),
-        const SizedBox(width: 4),
-        const Text('Sunny', style: TextStyle(fontSize: 16)),
-        const SizedBox(width: 4),
-      ]);
+      return _weatherRow(Icons.wb_sunny, loc.sunny);
+    } else if (outfit.isForRainy) {
+      return _weatherRow(Icons.beach_access, loc.rainyDay);
+    } else if (outfit.isForGloomy) {
+      return _weatherRow(Icons.cloud, loc.cloudyDay);
+    } else {
+      return _weatherRow(Icons.help_outline, loc.any);
     }
+  }
 
-    // Add rainy weather tag if applicable
-    if (outfit.isForRainy) {
-      weatherTags.addAll([
-        const Icon(Icons.beach_access, size: 18),
+  Widget _weatherRow(IconData icon, String label) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, semanticLabel: label),
         const SizedBox(width: 4),
-        const Text('Rainy', style: TextStyle(fontSize: 16)),
-        const SizedBox(width: 4),
-      ]);
-    }
-
-    // Add gloomy weather tag if applicable
-    if (outfit.isForRainy) {
-      weatherTags.addAll([
-        const Icon(Icons.cloud, size: 18),
-        const SizedBox(width: 4),
-        const Text('Gloomy', style: TextStyle(fontSize: 16)),
-        const SizedBox(width: 4),
-      ]);
-    }
-
-    return Row(children: weatherTags);
+        Text(label, style: const TextStyle(fontSize: 16)),
+      ],
+    );
   }
 
   /// Creates a chip widget for a clothing item.
   /// 
   /// Parameters:
+  /// - context: The build context
   /// - item: The clothing item to display
   /// Returns: A chip widget showing the item's description and color
-  Widget _clothingChip(dynamic item) {
+  Widget _clothingChip(BuildContext context, dynamic item) {
     final colorHelper = ColorHelper();
     final color = colorHelper.getColorFromString(item.colorName);
+    final loc = AppLocalizations.of(context);
+    if (loc == null) return const SizedBox.shrink();
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -164,6 +156,10 @@ class OutfitCard extends StatelessWidget {
               color: color,
               shape: BoxShape.circle,
               border: Border.all(color: Colors.grey.shade400, width: 1),
+            ),
+            child: Semantics(
+              label: '${item.description} color: ${item.colorName}',
+              child: const SizedBox.shrink(),
             ),
           ),
         ],
