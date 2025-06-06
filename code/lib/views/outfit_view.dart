@@ -15,11 +15,15 @@ class OutfitView extends StatefulWidget {
   /// The outfit to be edited or used as a template for creation
   final Outfit outfit;
 
+  /// Callback to trigger a refresh in the parent view
+  final VoidCallback? onRefresh;
+
   /// Creates a new OutfitView instance.
   /// 
   /// Parameters:
   /// - outfit: The outfit to edit or use as a template
-  const OutfitView({super.key, required this.outfit});
+  /// - onRefresh: Callback to refresh parent after save/delete
+  const OutfitView({super.key, required this.outfit, this.onRefresh});
 
   @override
   State<OutfitView> createState() => _OutfitViewState();
@@ -52,15 +56,33 @@ class _OutfitViewState extends State<OutfitView> {
   /// Flag indicating if outfit is suitable for sunny weather
   bool isForSunny = false;
 
+  /// Flag indicating if outfit is suitable for the second sunny icon
+  bool isForSunny2 = false;
+
+  /// Text controller for the item input field
+  final TextEditingController _itemController = TextEditingController();
+
+  /// Text controller for the outfit name field
+  final TextEditingController _nameController = TextEditingController();
+
   /// Initializes the outfit view state with values from the provided outfit
   @override
   void initState() {
     super.initState();
     currentOutfitNameText = widget.outfit.name;
+    _nameController.text = currentOutfitNameText;
     clothingItems = widget.outfit.clothingItems.toList();
     isForGloomy = widget.outfit.isForGloomy;
     isForRainy = widget.outfit.isForRainy;
     isForSunny = widget.outfit.isForSunny;
+    isForSunny2 = false; // Default to false, as Outfit model does not have this
+  }
+
+  @override
+  void dispose() {
+    _itemController.dispose();
+    _nameController.dispose();
+    super.dispose();
   }
 
   /// Builds the outfit editing interface
@@ -69,102 +91,114 @@ class _OutfitViewState extends State<OutfitView> {
     final loc = AppLocalizations.of(context);
     if (loc == null) return const SizedBox.shrink();
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(widget.outfit.name.isEmpty ? 'New Outfit' : 'Edit Outfit'),
+        backgroundColor: Colors.white,
+        elevation: 0,
         leading: Semantics(
           label: 'Back',
           child: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () => Navigator.pop(context),
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.undo, color: Colors.black),
+            onPressed: () {}, // Add undo functionality
+          ),
+          IconButton(
+            icon: const Icon(Icons.redo, color: Colors.black),
+            onPressed: () {}, // Add redo functionality
+          ),
           if (widget.outfit.name.isNotEmpty) // Only show delete for existing outfits
             Semantics(
               label: 'Delete outfit',
               child: IconButton(
-                icon: const Icon(Icons.delete),
+                icon: const Icon(Icons.delete, color: Colors.black),
                 onPressed: () => _showDeleteConfirmation(context),
               ),
             ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Outfit name input field
-              TextFormField(
-                initialValue: currentOutfitNameText,
-                decoration: const InputDecoration(
-                  labelText: 'Outfit Name',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter an outfit name';
-                  }
-                  return null;
-                },
-                onChanged: (value) => currentOutfitNameText = value,
-                autofocus: widget.outfit.name.isEmpty, // Focus on name field for new outfits
+              // Outfit title with editable text field
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _nameController,
+                      decoration: const InputDecoration(
+                        hintText: 'Outfit Name',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(vertical: 8),
+                      ),
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          currentOutfitNameText = value;
+                        });
+                      },
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 32),
               
               // Weather conditions section
-              const Row(
-                children: [
-                  Icon(Icons.wb_sunny, color: Colors.orange),
-                  SizedBox(width: 8),
-                  Text('Weather Conditions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                ],
-              ),
-              const SizedBox(height: 8),
               _displayWeatherIcons(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               
-              // Add clothing item section
-              const Row(
-                children: [
-                  Icon(Icons.add_circle_outline, color: Colors.green),
-                  SizedBox(width: 8),
-                  Text('Add Clothing Item', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                ],
+              // Clothing Items section
+              const Text(
+                'Clothing Items',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              const SizedBox(height: 8),
-              _createItemTile(),
-              const SizedBox(height: 24),
-              
-              // Current items section
-              const Row(
-                children: [
-                  Icon(Icons.checkroom, color: Colors.blue),
-                  SizedBox(width: 8),
-                  Text('Current Items', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                ],
-              ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               _displayClothingItems(),
               const SizedBox(height: 24),
               
-              // Save button
-              SizedBox(
-                width: double.infinity,
-                child: Semantics(
-                  label: 'Save outfit',
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.save),
-                    label: const Text('Save Outfit'),
-                    onPressed: () => _doSave(context),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.blueAccent,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+              // Enter Item section
+              _createItemTile(),
+              const SizedBox(height: 32),
+              
+              // Create Outfit button
+              Center(
+                child: SizedBox(
+                  width: 200,
+                  child: Semantics(
+                    label: 'Save outfit',
+                    child: ElevatedButton(
+                      onPressed: () => _doSave(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[200],
+                        foregroundColor: Colors.black,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      child: const Text(
+                        'Create Outfit',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ),
@@ -204,6 +238,7 @@ class _OutfitViewState extends State<OutfitView> {
       await context.read<DatabaseProvider>().deleteOutfit(widget.outfit);
       if (context.mounted) {
         Navigator.pop(context);
+        if (widget.onRefresh != null) widget.onRefresh!();
       }
     }
   }
@@ -213,26 +248,47 @@ class _OutfitViewState extends State<OutfitView> {
   /// Parameters:
   /// - context: The build context
   void _doSave(BuildContext context) async {
-    if (!_formKey.currentState!.validate()) return;
-
-    final newOutfit = Outfit(
-      name: currentOutfitNameText,
-      isForGloomy: isForGloomy,
-      isForRainy: isForRainy,
-      isForSunny: isForSunny,
-    );
-
-    // Add all clothing items to the new outfit
-    for (var item in clothingItems) {
-      await newOutfit.addItem(clothingItem: item);
+    if (currentOutfitNameText.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter an outfit name')),
+      );
+      return;
     }
 
-    if (context.mounted) {
+    try {
+      // 1. Save the Outfit first (so it gets an ID)
       final dbProvider = context.read<DatabaseProvider>();
+      final newOutfit = Outfit(
+        name: currentOutfitNameText,
+        isForGloomy: isForGloomy,
+        isForRainy: isForRainy,
+        isForSunny: isForSunny,
+      );
       await dbProvider.addOutfit(newOutfit);
-      await dbProvider.loadData(); // Reload data to ensure UI is updated
+
+      // 2. Reload the managed Outfit from Isar
+      final managedOutfit = await dbProvider.getOutfitByNameAndFlags(
+        currentOutfitNameText, isForGloomy, isForRainy, isForSunny);
+      if (managedOutfit == null) {
+        throw Exception('Failed to reload saved outfit from database.');
+      }
+
+      // 3. Add all clothing items to the managed outfit (persist links)
+      for (var item in clothingItems) {
+        await dbProvider.addItemToOutfit(managedOutfit, item);
+      }
+
+      // 4. Reload data and pop back to all outfits view
+      await dbProvider.loadData();
       if (context.mounted) {
         Navigator.pop(context);
+        if (widget.onRefresh != null) widget.onRefresh!();
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save outfit: $e')),
+        );
       }
     }
   }
@@ -242,11 +298,15 @@ class _OutfitViewState extends State<OutfitView> {
   /// Returns: A row of weather condition buttons
   Widget _displayWeatherIcons() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         _makeWeatherButton('Rainy', isForRainy),
+        const SizedBox(width: 20),
         _makeWeatherButton('Gloomy', isForGloomy),
+        const SizedBox(width: 20),
         _makeWeatherButton('Sunny', isForSunny),
+        const SizedBox(width: 20),
+        _makeWeatherButton('Sunny2', isForSunny2),
       ],
     );
   }
@@ -259,169 +319,150 @@ class _OutfitViewState extends State<OutfitView> {
   /// Returns: A button widget for selecting a weather condition
   Widget _makeWeatherButton(String condition, bool isSelected) {
     IconData icon = switch (condition) {
-      'Gloomy' => Icons.cloud,
-      'Sunny' => Icons.wb_sunny,
-      'Rainy' => Icons.water_drop,
+      'Gloomy' => Icons.cloud_outlined,
+      'Sunny' => Icons.wb_sunny_outlined,
+      'Sunny2' => Icons.wb_sunny,
+      'Rainy' => Icons.thunderstorm_outlined,
       _ => Icons.question_mark
     };
-    Color selectedColor = switch (condition) {
-      'Gloomy' => Colors.grey,
-      'Sunny' => Colors.orange,
-      'Rainy' => Colors.blue,
-      _ => Colors.black
-    };
+    
     return Semantics(
       label: '$condition weather button, ${isSelected ? "selected" : "not selected"}',
-      child: Container(
-        decoration: BoxDecoration(
-          color: isSelected ? selectedColor.withValues(alpha: .15) : Colors.transparent,
-          border: Border.all(
-            color: isSelected ? selectedColor : Colors.grey.shade300,
-            width: isSelected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: IconButton(
-          icon: Icon(icon, color: isSelected ? selectedColor : Colors.grey),
-          onPressed: () {
-            setState(() {
-              if (condition == 'Rainy') isForRainy = !isForRainy;
-              if (condition == 'Gloomy') isForGloomy = !isForGloomy;
-              if (condition == 'Sunny') isForSunny = !isForSunny;
-            });
-          },
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            if (condition == 'Rainy') isForRainy = !isForRainy;
+            if (condition == 'Gloomy') isForGloomy = !isForGloomy;
+            if (condition == 'Sunny') isForSunny = !isForSunny;
+            if (condition == 'Sunny2') isForSunny2 = !isForSunny2;
+          });
+        },
+        child: Icon(
+          icon,
+          size: 32,
+          color: isSelected ? Colors.black : Colors.grey[400],
         ),
       ),
     );
   }
 
-  // displays outfit's clothing items in a rounded box
+  /// Displays outfit's clothing items in a rounded container
   Widget _displayClothingItems() {
     if (clothingItems.isEmpty) {
-      return const Center(
-        child: Text('No items added yet'),
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Center(
+          child: Text(
+            'No items added yet',
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
       );
     }
 
     return Container(
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.blueGrey[50],
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 1.5,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-        ),
-        padding: const EdgeInsets.all(8),
-        itemCount: clothingItems.length,
-        itemBuilder: (context, index) {
-          final item = clothingItems[index];
-          return Semantics(
-            label: 'Clothing item: ${item.description}, color: ${item.colorName}',
-            child: Dismissible(
-              key: Key(item.description),
-              onDismissed: (direction) {
-                setState(() {
-                  clothingItems.removeAt(index);
-                });
-              },
-              background: Container(
-                color: Colors.red,
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.only(right: 16),
-                child: const Icon(Icons.delete, color: Colors.white),
-              ),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ClothingItemWidget(item: item),
-                ),
-              ),
-            ),
-          );
-        },
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: clothingItems.map((item) {
+          return _buildClothingItemChip(item);
+        }).toList(),
       ),
     );
   }
 
-  // creates tile for creating a new clothing item
-  // gets the item description and color
+  /// Builds a clothing item chip
+  Widget _buildClothingItemChip(ClothingItem item) {
+    final color = ColorHelper().getColorFromString(item.colorName);
+    return Semantics(
+      label: 'Clothing item: \\${item.description}, color: \\${item.colorName}',
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            clothingItems.remove(item);
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey[300]!),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                item.description,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: color == Colors.white ? Colors.grey : Colors.transparent,
+                    width: color == Colors.white ? 2 : 0,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Creates tile for creating a new clothing item
   Widget _createItemTile() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.green[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green),
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
-          TextFormField(
+          TextField(
+            controller: _itemController,
             decoration: const InputDecoration(
-              labelText: 'Item Description',
-              border: OutlineInputBorder(),
+              hintText: 'Enter Item',
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.all(12),
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter an item description';
-              }
-              return null;
-            },
             onChanged: (value) => currentItemText = value,
+            onSubmitted: (value) {
+              if (value.isNotEmpty) {
+                addItem();
+              }
+            },
           ),
           const SizedBox(height: 16),
-          const Row(
-            children: [
-              Icon(Icons.palette, color: Colors.purple),
-              SizedBox(width: 8),
-              Text('Select Color', style: TextStyle(fontSize: 14)),
-            ],
-          ),
-          const SizedBox(height: 8),
           _buildPalette(),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: Semantics(
-              label: 'Add clothing item',
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.add),
-                label: const Text('Add Item'),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    addItem();
-                    setState(() {
-                      currentItemText = '';
-                    });
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 
-  // adds new item from current description and color to items
+  /// Adds new item from current description and color to items
   void addItem() {
+    if (currentItemText.isEmpty) return;
+    
     final colorName = ColorHelper().getStringFromColor(currentItemColor);
     final itemToAdd = ClothingItem(
       description: currentItemText,
@@ -429,12 +470,14 @@ class _OutfitViewState extends State<OutfitView> {
     );
     setState(() {
       clothingItems.add(itemToAdd);
+      currentItemText = '';
+      _itemController.clear();
     });
   }
 
-  // builds 8x2 grid of color buttons to select for new clothing item
+  /// Builds 8x2 grid of color buttons to select for new clothing item
   Widget _buildPalette() {
-    // getting predefined set of colors for items
+    // Use all colors defined in ColorHelper
     final colors = ColorHelper().colorMap.values.toList();
     return GridView.builder(
       shrinkWrap: true,
@@ -442,8 +485,8 @@ class _OutfitViewState extends State<OutfitView> {
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 8,
         childAspectRatio: 1,
-        crossAxisSpacing: 4,
-        mainAxisSpacing: 4,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
       ),
       itemCount: colors.length,
       itemBuilder: (context, index) {
@@ -453,30 +496,24 @@ class _OutfitViewState extends State<OutfitView> {
     );
   }
 
-  // builds a circular color button to select item color
-  // Params:
-  //  -color: color to create button for
+  /// Builds a circular color button to select item color
   Widget _buildColorButton(Color color) {
     final isSelected = color == currentItemColor;
     return Semantics(
-      label: 'Color button, ${ColorHelper().getStringFromColor(color)}${isSelected ? ", selected" : ""}',
+      label: 'Color button, \\${ColorHelper().getStringFromColor(color)}\\${isSelected ? ", selected" : ""}',
       child: GestureDetector(
         onTap: () => setState(() => currentItemColor = color),
         child: Container(
-          margin: const EdgeInsets.all(2),
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
             border: Border.all(
-              color: isSelected ? Colors.black : Colors.transparent,
-              width: 2,
+              color: isSelected
+                  ? (color == Colors.black ? Colors.yellow : Colors.black)
+                  : (color == Colors.white ? Colors.grey[300]! : Colors.transparent),
+              width: isSelected ? 3 : (color == Colors.white ? 1 : 0),
             ),
-            boxShadow: isSelected
-                ? [const BoxShadow(color: Colors.black26, blurRadius: 4, spreadRadius: 1)]
-                : [],
           ),
-          width: 32,
-          height: 32,
         ),
       ),
     );

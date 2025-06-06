@@ -11,8 +11,11 @@ class WeatherFilter extends StatefulWidget {
   /// List of all outfits to filter
   final List<Outfit> outfits;
 
+  /// Callback to trigger a refresh in the parent view
+  final VoidCallback? onRefresh;
+
   /// Creates a WeatherFilter
-  const WeatherFilter({super.key, required this.outfits});
+  const WeatherFilter({super.key, required this.outfits, this.onRefresh});
 
   @override
   State<WeatherFilter> createState() => _WeatherFilterState();
@@ -42,7 +45,7 @@ class _WeatherFilterState extends State<WeatherFilter> {
     if (!_matchesWeatherCondition(outfit)) {
       return const SizedBox.shrink();
     }
-    return OutfitCard(outfit: outfit, currentWeather: currentWeather);
+    return OutfitCard(outfit: outfit, currentWeather: currentWeather, onRefresh: widget.onRefresh);
   }
 
   /// Checks if an outfit matches the selected weather condition
@@ -71,9 +74,10 @@ class _WeatherFilterState extends State<WeatherFilter> {
       await Navigator.push(context,
           MaterialPageRoute(builder: (context) {
             print('WeatherFilter: Building OutfitView route');
-            return OutfitView(outfit: outfit);
+            return OutfitView(outfit: outfit, onRefresh: widget.onRefresh);
           }));
       print('WeatherFilter: Successfully returned from OutfitView');
+      if (widget.onRefresh != null) widget.onRefresh!();
     } catch (e) {
       print('WeatherFilter: Error navigating to OutfitView: $e');
     }

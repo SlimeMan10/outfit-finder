@@ -235,4 +235,16 @@ class DatabaseProvider extends ChangeNotifier {
       rethrow;
     }
   }
+
+  /// Fetches an outfit by name and weather flags (for use after saving)
+  Future<Outfit?> getOutfitByNameAndFlags(String name, bool isForGloomy, bool isForRainy, bool isForSunny) async {
+    final results = await isar.outfits
+        .filter()
+        .nameEqualTo(name)
+        .isForGloomyEqualTo(isForGloomy)
+        .isForRainyEqualTo(isForRainy)
+        .isForSunnyEqualTo(isForSunny)
+        .findAll();
+    return results.isNotEmpty ? results.last : null;
+  }
 }
