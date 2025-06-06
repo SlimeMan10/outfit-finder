@@ -137,29 +137,6 @@ class OutfitCard extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     if (loc == null) return const SizedBox.shrink();
 
-    String localizedDescription;
-    switch (item.description) {
-      case 'White T-shirt':
-        localizedDescription = loc.whiteTShirt;
-        break;
-      case 'Blue Jeans':
-        localizedDescription = loc.blueJeans;
-        break;
-      case 'Sunglasses':
-        localizedDescription = loc.sunglasses;
-        break;
-      case 'Rain Jacket':
-        localizedDescription = loc.rainJacket;
-        break;
-      case 'Waterproof Boots':
-        localizedDescription = loc.waterproofBoots;
-        break;
-      case 'Umbrella':
-        localizedDescription = loc.umbrella;
-        break;
-      default:
-        localizedDescription = item.description;
-    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -170,7 +147,7 @@ class OutfitCard extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(localizedDescription, style: const TextStyle(fontSize: 15)),
+          Text(item.description, style: const TextStyle(fontSize: 15)),
           const SizedBox(width: 6),
           Container(
             width: 14,
@@ -181,7 +158,7 @@ class OutfitCard extends StatelessWidget {
               border: Border.all(color: Colors.grey.shade400, width: 1),
             ),
             child: Semantics(
-              label: '${localizedDescription} color: ${item.colorName}',
+              label: '${item.description} color: ${item.colorName}',
               child: const SizedBox.shrink(),
             ),
           ),

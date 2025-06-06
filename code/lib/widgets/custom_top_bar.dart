@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:outfit_finder/weather_conditions.dart';
 import 'package:outfit_finder/providers/weather_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:outfit_finder/main.dart';
+import 'package:outfit_finder/providers/locale_change_notifier.dart';
 
 /// A custom top bar widget that displays weather information and controls.
 class CustomTopBar extends StatelessWidget {
@@ -38,6 +40,8 @@ class CustomTopBar extends StatelessWidget {
     final temp = context.watch<WeatherProvider>().tempInFahrenheit;
     final lowTemp = context.watch<WeatherProvider>().lowTempFahrenheit;
     final highTemp = context.watch<WeatherProvider>().highTempFahrenheit;
+    final loc = AppLocalizations.of(context);
+    if (loc == null) return const SizedBox.shrink();
     
     return Container(
       padding: const EdgeInsets.only(top: 48, left: 16, right: 16, bottom: 8),
@@ -67,37 +71,53 @@ class CustomTopBar extends StatelessWidget {
               ),
               Row(
                 children: [
+                  // Language Switcher Button
+                  Semantics(
+                    label: 'Change Language',
+                    button: true,
+                    child: IconButton(
+                      icon: const Icon(Icons.language),
+                      onPressed: () => _showLanguageDialog(context),
+                      tooltip: 'Change Language',
+                    ),
+                  ),
                   Container(
                     decoration: BoxDecoration(
                       color: isFilterActive ? _getFilterActiveColor(weather) : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.filter_list,
-                        size: 28,
-                        color: isFilterActive ? Colors.white : Colors.black87,
-                        semanticLabel: AppLocalizations.of(context)!.weatherConditions,
+                    child: Semantics(
+                      label: loc.weatherConditions,
+                      button: true,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.filter_list,
+                          size: 28,
+                          color: isFilterActive ? Colors.white : Colors.black87,
+                        ),
+                        onPressed: () {
+                          if (isFilterActive) {
+                            onWeatherFilterSelected(null); // Reset to show all
+                          } else {
+                            onWeatherFilterSelected(weather); // Filter to current weather
+                          }
+                          onFilterPressed();
+                        },
+                        tooltip: loc.weatherConditions,
                       ),
-                      onPressed: () {
-                        if (isFilterActive) {
-                          onWeatherFilterSelected(null); // Reset to show all
-                        } else {
-                          onWeatherFilterSelected(weather); // Filter to current weather
-                        }
-                        onFilterPressed();
-                      },
-                      tooltip: AppLocalizations.of(context)!.weatherConditions,
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.add,
-                      size: 28,
-                      semanticLabel: AppLocalizations.of(context)!.addClothingItem,
+                  Semantics(
+                    label: loc.addClothingItem,
+                    button: true,
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.add,
+                        size: 28,
+                      ),
+                      onPressed: () {},
+                      tooltip: loc.addClothingItem,
                     ),
-                    onPressed: () {},
-                    tooltip: AppLocalizations.of(context)!.addClothingItem,
                   ),
                 ],
               )
@@ -131,6 +151,41 @@ class CustomTopBar extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _showLanguageDialog(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    if (loc == null) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Language'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('English'),
+              onTap: () {
+                _changeLanguage(context, const Locale('en'));
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Español'),
+              onTap: () {
+                _changeLanguage(context, const Locale('es'));
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _changeLanguage(BuildContext context, Locale locale) {
+    context.read<LocaleChangeNotifier>().setLocale(locale);
   }
 
   /// Gets the color for the active filter button based on weather condition.

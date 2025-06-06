@@ -37,10 +37,20 @@ class _OutFitFinderAppState extends State<OutFitFinderApp> {
   /// Flag indicating if the weather filter is currently active
   bool _isFilterActive = false;
 
+  /// Current locale of the app
+  Locale _locale = const Locale('en');
+
   @override
   void initState() {
     super.initState();
     _outfitsFuture = widget.venues.getAllOutfits();
+  }
+
+  /// Sets the app's locale
+  void setLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
   }
 
   /// Filters the list of outfits based on the selected weather condition.
